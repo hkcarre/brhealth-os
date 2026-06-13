@@ -11,3 +11,4 @@ data/clean/*
 *.db
 *.parquet
 .DS_Store
+temp_test/
