@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloomberg Terminal - Saúde BR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="terminal-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-accent">BR</span>Health OS
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Consultar IA
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    Datalake
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Previsões
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Grafo de Conhecimento
+                </a>
+            </nav>
+            <div class="system-status">
+                <div class="status-indicator online"></div>
+                Agentes LangGraph Online
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h1>Painel de Inteligência</h1>
+                <div class="user-profile">Analista Chefe</div>
+            </header>
+
+            <div class="dashboard">
+                <!-- Query Section -->
+                <div class="card query-section">
+                    <h2>Faça uma pergunta ao Agente QA</h2>
+                    <form id="query-form" class="query-form">
+                        <div class="input-group">
+                            <input type="text" id="question-input" placeholder="Ex: Quantos hospitais distintos existem?" required autocomplete="off">
+                            <button type="submit" id="submit-btn">
+                                Executar
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-grid">
+                    <div class="card result-card narrative-card">
+                        <h3>Análise Narrativa (Insight)</h3>
+                        <div class="content-box narrative-content" id="narrative-output">
+                            Aguardando consulta...
+                        </div>
+                    </div>
+
+                    <div class="card result-card sql-card">
+                        <h3>SQL Executado</h3>
+                        <div class="content-box code-content" id="sql-output">
+                            -- Nenhuma query executada
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table Section -->
+                <div class="card data-card">
+                    <h3>Resultados Estruturados (JSON)</h3>
+                    <div class="table-container">
+                        <table id="results-table">
+                            <thead>
+                                <tr id="table-head">
+                                    <th>Dados</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr>
+                                    <td class="empty-state">Execute uma pergunta para ver os dados</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
