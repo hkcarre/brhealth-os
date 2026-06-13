@@ -462,4 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    // Trigger default query on load
+    input.value = "Volume de cirurgias de catarata por hospital?";
+    form.dispatchEvent(new Event('submit'));
 });
