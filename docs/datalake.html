@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datalake Explorer - Saúde BR | Bloomberg Terminal</title>
+    <meta name="description" content="Esquemas e dicionário de dados do Data Lakehouse SUS.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="terminal-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" aria-label="Navegação Lateral">
+            <div class="logo">
+                <span class="logo-accent">BR</span>Health OS
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item" id="nav-qa">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Consultar IA
+                </a>
+                <a href="datalake.html" class="nav-item active" id="nav-datalake" aria-current="page">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    Datalake (Acre)
+                </a>
+                <a href="previsoes.html" class="nav-item" id="nav-forecast">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Previsões
+                </a>
+                <a href="grafo.html" class="nav-item" id="nav-graph">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Grafo SUS
+                </a>
+            </nav>
+            <div class="system-status">
+                <div class="status-indicator online"></div>
+                <span>Simulação Offline</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" aria-label="Conteúdo Principal">
+            <header class="header">
+                <h1>Datalake Explorer</h1>
+                <div class="user-profile">Dicionário & Modelagem</div>
+            </header>
+
+            <div class="dashboard">
+                <!-- Data Lakehouse Summary Card -->
+                <section class="card" aria-label="Sumário do Datalake">
+                    <h2>Estatísticas e Integração do Datalake (Acre)</h2>
+                    <div class="results-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                        <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">
+                            <p style="color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Total de Registros (master_healthcare)</p>
+                            <h3 style="font-size: 2rem; color: var(--accent-primary); margin: 0.5rem 0;">110.151</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Internações e procedimentos ambulatoriais no Acre consolidados para Janeiro/2024.</p>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">
+                            <p style="color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Fontes Integradas</p>
+                            <ul style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 4px;">
+                                <li><strong>DATASUS SIH:</strong> Hospitalizações (arquivos RD)</li>
+                                <li><strong>DATASUS SIA:</strong> Ambulatório & Catarata (arquivos PA)</li>
+                                <li><strong>CNES:</strong> Cadastro Geral de Estabelecimentos (CADGER)</li>
+                                <li><strong>IBGE Localidades:</strong> Mapeamento geográfico de municípios</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Dictionary Table -->
+                <section class="card" aria-label="Dicionário de Dados">
+                    <h2>Dicionário de Dados da Tabela Master (`master_healthcare`)</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+                        A tabela central do Data Lakehouse consolida dados assistenciais e cadastrais em um único modelo dimensional de alta performance.
+                    </p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nome da Coluna</th>
+                                    <th scope="col">Tipo de Dado</th>
+                                    <th scope="col">Descrição</th>
+                                    <th scope="col">Origem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>cnes</strong></td>
+                                    <td>VARCHAR</td>
+                                    <td>Código de 7 dígitos do Cadastro Nacional de Estabelecimentos de Saúde.</td>
+                                    <td>SIH/SIA</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>hospital_nome</strong></td>
+                                    <td>VARCHAR</td>
+                                    <td>Nome fantasia resolvido e padronizado do hospital/clínica.</td>
+                                    <td>CNES (CADGER)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>hospital_municipio_nome</strong></td>
+                                    <td>VARCHAR</td>
+                                    <td>Nome oficial do município onde o hospital está situado.</td>
+                                    <td>IBGE</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>procedimento_codigo</strong></td>
+                                    <td>VARCHAR</td>
+                                    <td>Código do procedimento SUS realizado (ex: 0405050372 para cirurgia de catarata).</td>
+                                    <td>SIH/SIA</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>valor_total</strong></td>
+                                    <td>DOUBLE</td>
+                                    <td>Valor total pago pelo SUS para o atendimento/procedimento (em R$).</td>
+                                    <td>SIH/SIA</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>dias_permanencia</strong></td>
+                                    <td>INTEGER</td>
+                                    <td>Tempo de internação do paciente em dias. Zero para ambulatoriais.</td>
+                                    <td>SIH</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>paciente_idade</strong></td>
+                                    <td>INTEGER</td>
+                                    <td>Idade do paciente em anos.</td>
+                                    <td>SIH/SIA</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>paciente_municipio_nome</strong></td>
+                                    <td>VARCHAR</td>
+                                    <td>Nome oficial do município onde o paciente reside.</td>
+                                    <td>IBGE</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>paciente_uf</strong></td>
+                                    <td>VARCHAR</td>
+                                    <td>Sigla do estado de residência do paciente (ex: AC).</td>
+                                    <td>IBGE</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Database Schemas -->
+                <section class="card" aria-label="Tabelas de Suporte">
+                    <h2>Esquemas das Tabelas de Suporte (DuckDB Parquet Layers)</h2>
+                    <div class="results-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                        <div>
+                            <h3 style="font-size: 0.85rem; color: var(--accent-secondary); margin-bottom: 0.5rem;">Tabela `clean_ibge`</h3>
+                            <pre style="background: #050608; border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary);">
+CREATE TABLE clean_ibge (
+  municipio_id INTEGER PRIMARY KEY,
+  nome VARCHAR,
+  uf VARCHAR
+);
+                            </pre>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 0.85rem; color: var(--accent-secondary); margin-bottom: 0.5rem;">Tabela `clean_cnes`</h3>
+                            <pre style="background: #050608; border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary);">
+CREATE TABLE clean_cnes (
+  cnes VARCHAR PRIMARY KEY,
+  fantasia VARCHAR,
+  raz_soci VARCHAR,
+  codufmun VARCHAR
+);
+                            </pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

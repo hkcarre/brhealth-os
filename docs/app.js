@@ -128,27 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setActiveNavItem(navSettings);
     });
 
-    // Sidebar navigation mock click
-    [navQa, navDatalake, navForecast, navGraph].forEach(navItem => {
-        navItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            settingsCard.classList.add('collapsed');
-            setActiveNavItem(navItem);
-
-            const title = navItem.textContent.trim();
-            if (navItem.id === 'nav-qa') {
-                narrativeOutput.textContent = "Selecione ou digite uma pergunta acima para iniciar a análise dos dados integrados do SUS.";
-                sqlOutput.textContent = "-- Nenhuma query executada";
-                renderTable([]);
-                chartSection.classList.add('hidden');
-            } else {
-                narrativeOutput.innerHTML = `<span style="color: var(--accent-primary)">O módulo '${title}' será ativado em uma futura versão. Atualmente, os dados integrados do SUS do Acre de Jan/2024 estão carregados no Data Lakehouse. Utilize a aba 'Consultar IA' para fazer análises.</span>`;
-                sqlOutput.textContent = `-- Módulo ${title} em desenvolvimento`;
-                renderTable([]);
-                chartSection.classList.add('hidden');
-            }
-        });
-    });
+    // Sidebar navigation settings click is handled above, standard HTML hrefs handle page transitions.
 
     function setActiveNavItem(item) {
         document.querySelectorAll('.nav-item').forEach(nav => {

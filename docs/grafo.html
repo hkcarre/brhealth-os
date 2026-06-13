@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafo SUS - Saúde BR | Bloomberg Terminal</title>
+    <meta name="description" content="Grafo de fluxos e tráfego de pacientes assistidos no Acre.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .graph-wrapper {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+        
+        .svg-container {
+            width: 800px;
+            height: 400px;
+        }
+
+        /* Node Hover Effects */
+        .node {
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .node:hover circle {
+            stroke: #fff;
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+        }
+
+        .node:hover text {
+            fill: #fff;
+            font-weight: 700;
+        }
+
+        /* Animated Arrow flows */
+        .flow-line {
+            stroke-dasharray: 8, 8;
+            animation: flowAnimation 25s linear infinite;
+        }
+
+        @keyframes flowAnimation {
+            from {
+                stroke-dashoffset: 500;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" aria-label="Navegação Lateral">
+            <div class="logo">
+                <span class="logo-accent">BR</span>Health OS
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item" id="nav-qa">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Consultar IA
+                </a>
+                <a href="datalake.html" class="nav-item" id="nav-datalake">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    Datalake (Acre)
+                </a>
+                <a href="previsoes.html" class="nav-item" id="nav-forecast">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Previsões
+                </a>
+                <a href="grafo.html" class="nav-item active" id="nav-graph" aria-current="page">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Grafo SUS
+                </a>
+            </nav>
+            <div class="system-status">
+                <div class="status-indicator online"></div>
+                <span>Simulação Offline</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" aria-label="Conteúdo Principal">
+            <header class="header">
+                <h1>Grafo de Relações do SUS</h1>
+                <div class="user-profile">Visualização de Redes</div>
+            </header>
+
+            <div class="dashboard">
+                <!-- Network Visualizer Card -->
+                <section class="card" aria-label="Visualizador de Rede">
+                    <h2>Fluxo de Pacientes: Município de Origem ➔ Hospital Oftalmológico</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                        O diagrama abaixo demonstra o fluxo geográfico dos pacientes de catarata no Acre (Jan/2024). Os círculos representam as cidades de origem e a clínica executora. As setas pontilhadas animadas ilustram o tráfego dos pacientes em direção à capital.
+                    </p>
+                    
+                    <div class="graph-wrapper">
+                        <!-- SVG Network Diagram -->
+                        <svg class="svg-container" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Definitions for arrows -->
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#00d2ff" />
+                                </marker>
+                            </defs>
+
+                            <!-- Background Grid lines (subtle) -->
+                            <line x1="50" y1="0" x2="50" y2="400" stroke="rgba(255,255,255,0.01)" stroke-width="1" />
+                            <line x1="750" y1="0" x2="750" y2="400" stroke="rgba(255,255,255,0.01)" stroke-width="1" />
+                            
+                            <!-- Flow lines / Edges -->
+                            <!-- Rio Branco -> HOA -->
+                            <path d="M 220 80 Q 435 140 650 200" fill="none" stroke="rgba(0, 210, 255, 0.4)" stroke-width="3" class="flow-line" marker-end="url(#arrow)" />
+                            
+                            <!-- Senador Guiomard -> HOA -->
+                            <path d="M 220 140 Q 435 170 650 200" fill="none" stroke="rgba(0, 210, 255, 0.3)" stroke-width="2" class="flow-line" marker-end="url(#arrow)" />
+                            
+                            <!-- Sena Madureira -> HOA -->
+                            <path d="M 220 200 L 650 200" fill="none" stroke="rgba(0, 210, 255, 0.3)" stroke-width="2" class="flow-line" marker-end="url(#arrow)" />
+                            
+                            <!-- Cruzeiro do Sul -> HOA -->
+                            <path d="M 220 260 Q 435 230 650 200" fill="none" stroke="rgba(0, 210, 255, 0.2)" stroke-width="1.5" class="flow-line" marker-end="url(#arrow)" />
+                            
+                            <!-- Acrelândia -> HOA -->
+                            <path d="M 220 320 Q 435 260 650 200" fill="none" stroke="rgba(0, 210, 255, 0.2)" stroke-width="1.5" class="flow-line" marker-end="url(#arrow)" />
+
+                            <!-- Nodes: Municipalities (Origins) -->
+                            <!-- Rio Branco -->
+                            <g class="node" transform="translate(220, 80)">
+                                <circle r="22" fill="#0c0d10" stroke="#ff9f0a" stroke-width="2" filter="drop-shadow(0 0 5px rgba(255,159,10,0.4))" />
+                                <text x="-70" y="5" fill="#aeaeae" font-size="11" font-family="Inter" font-weight="600">Rio Branco (246)</text>
+                            </g>
+
+                            <!-- Senador Guiomard -->
+                            <g class="node" transform="translate(220, 140)">
+                                <circle r="12" fill="#0c0d10" stroke="#00d2ff" stroke-width="1.5" />
+                                <text x="-120" y="4" fill="#aeaeae" font-size="11" font-family="Inter">Sen. Guiomard (14)</text>
+                            </g>
+
+                            <!-- Sena Madureira -->
+                            <g class="node" transform="translate(220, 200)">
+                                <circle r="11" fill="#0c0d10" stroke="#00d2ff" stroke-width="1.5" />
+                                <text x="-120" y="4" fill="#aeaeae" font-size="11" font-family="Inter">Sena Madureira (11)</text>
+                            </g>
+
+                            <!-- Cruzeiro do Sul -->
+                            <g class="node" transform="translate(220, 260)">
+                                <circle r="9" fill="#0c0d10" stroke="#00d2ff" stroke-width="1.5" />
+                                <text x="-120" y="4" fill="#aeaeae" font-size="11" font-family="Inter">Cruzeiro do Sul (8)</text>
+                            </g>
+
+                            <!-- Acrelândia -->
+                            <g class="node" transform="translate(220, 320)">
+                                <circle r="9" fill="#0c0d10" stroke="#00d2ff" stroke-width="1.5" />
+                                <text x="-95" y="4" fill="#aeaeae" font-size="11" font-family="Inter">Acrelândia (7)</text>
+                            </g>
+
+                            <!-- Central Node: Hospital Oftalmológico (Destination) -->
+                            <g class="node" transform="translate(650, 200)">
+                                <circle r="32" fill="#0c0d10" stroke="#ff9f0a" stroke-width="3" filter="drop-shadow(0 0 10px rgba(255,159,10,0.6))" />
+                                <text x="-65" y="45" fill="#f2f2f7" font-size="12" font-family="Inter" font-weight="700">HOA Oftalmologia</text>
+                                <text x="-55" y="60" fill="#ff9f0a" font-size="10" font-family="JetBrains Mono" font-weight="600">346 Cirurgias (100%)</text>
+                            </g>
+                        </svg>
+                    </div>
+                </section>
+
+                <!-- Insights Section -->
+                <section class="card" aria-label="Análise de Dependência">
+                    <h2>Análise de Centralidade e Encaminhamentos</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7;">
+                        O grafo expõe a **centralização total** da assistência cirúrgica oftalmológica do SUS no Acre na capital Rio Branco (através do hospital parceiro HOA). 
+                        Pacientes residentes em Cruzeiro do Sul, por exemplo, precisaram percorrer mais de **600 km** (ou realizar transporte aeromédico) para a realização de um procedimento ambulatorial de catarata. 
+                        Isso indica uma alta dependência intermunicipal e ausência de descentralização tecnológica no interior do estado (Vale do Juruá).
+                    </p>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

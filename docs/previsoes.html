@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsões de Demanda - Saúde BR | Bloomberg Terminal</title>
+    <meta name="description" content="Projeções e análise preditiva de internações e cirurgias no Acre.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="terminal-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" aria-label="Navegação Lateral">
+            <div class="logo">
+                <span class="logo-accent">BR</span>Health OS
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item" id="nav-qa">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Consultar IA
+                </a>
+                <a href="datalake.html" class="nav-item" id="nav-datalake">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    Datalake (Acre)
+                </a>
+                <a href="previsoes.html" class="nav-item active" id="nav-forecast" aria-current="page">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Previsões
+                </a>
+                <a href="grafo.html" class="nav-item" id="nav-graph">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Grafo SUS
+                </a>
+            </nav>
+            <div class="system-status">
+                <div class="status-indicator online"></div>
+                <span>Simulação Offline</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" aria-label="Conteúdo Principal">
+            <header class="header">
+                <h1>Previsões e Planejamento Preditivo</h1>
+                <div class="user-profile">Modelo ARIMA-SUS</div>
+            </header>
+
+            <div class="dashboard">
+                <!-- Forecast Chart Card -->
+                <section class="card chart-card" aria-label="Gráfico de Projeção">
+                    <h2>Projeção de Demanda Cirúrgica (Catarata no Acre) - 2024</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+                        Modelo estatístico preditivo projetando o crescimento mensal de cirurgias de catarata, baseado no histórico de encaminhamentos ambulatoriais.
+                    </p>
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="forecast-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Allocations & Targets Table -->
+                <section class="card" aria-label="Projeção Municipal">
+                    <h2>Alocação Recomendada de Recursos por Município (Projeção Q3-Q4)</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+                        Estimativas de pacientes reprimidos/fila de espera acumulada por município, auxiliando no planejamento de mutirões cirúrgicos locais.
+                    </p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Município de Residência</th>
+                                    <th scope="col">Fila Estimada (Q3)</th>
+                                    <th scope="col">Projeção de Custo (R$)</th>
+                                    <th scope="col">Prioridade Recomendada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Rio Branco</strong></td>
+                                    <td>142 pacientes</td>
+                                    <td>R$ 94.004,00</td>
+                                    <td><span style="color: var(--accent-secondary); font-weight: bold;">MÉDIA (Volume Alto)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sena Madureira</strong></td>
+                                    <td>48 pacientes</td>
+                                    <td>R$ 31.776,00</td>
+                                    <td><span style="color: var(--accent-primary); font-weight: bold;">ALTA (Gargalo de Acesso)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Senador Guiomard</strong></td>
+                                    <td>35 pacientes</td>
+                                    <td>R$ 23.170,00</td>
+                                    <td><span style="color: var(--accent-primary); font-weight: bold;">ALTA</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cruzeiro do Sul</strong></td>
+                                    <td>28 pacientes</td>
+                                    <td>R$ 18.536,00</td>
+                                    <td><span style="color: var(--accent-secondary); font-weight: bold;">MÉDIA</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Plácido de Castro</strong></td>
+                                    <td>22 pacientes</td>
+                                    <td>R$ 14.564,00</td>
+                                    <td><span style="color: var(--accent-danger); font-weight: bold;">CRÍTICA (Zero atendimentos no mês)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Porto Acre</strong></td>
+                                    <td>18 pacientes</td>
+                                    <td>R$ 11.916,00</td>
+                                    <td><span style="color: var(--accent-danger); font-weight: bold;">CRÍTICA (Zero atendimentos no mês)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Acrelândia</strong></td>
+                                    <td>15 pacientes</td>
+                                    <td>R$ 9.930,00</td>
+                                    <td><span style="color: var(--text-secondary);">BAIXA</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Page script to render Forecast Line Chart -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('forecast-chart').getContext('2d');
+            
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const actualVolume = [346, null, null, null, null, null, null, null, null, null, null, null];
+            const projectedVolume = [346, 355, 370, 362, 385, 400, 415, 425, 410, 430, 445, 460];
+            const confHigh = [346, 380, 405, 400, 430, 455, 480, 495, 485, 510, 530, 550];
+            const confLow = [346, 330, 335, 324, 340, 345, 350, 355, 335, 350, 360, 370];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Volume Real (Acre)',
+                            data: actualVolume,
+                            borderColor: '#ff9f0a',
+                            backgroundColor: '#ff9f0a',
+                            pointRadius: 6,
+                            borderWidth: 3,
+                            type: 'line',
+                            zIndex: 10
+                        },
+                        {
+                            label: 'Projeção de Demanda (Média)',
+                            data: projectedVolume,
+                            borderColor: '#00d2ff',
+                            borderDash: [5, 5],
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Margem Limite Superior',
+                            data: confHigh,
+                            borderColor: 'rgba(0, 210, 255, 0.2)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Margem Limite Inferior',
+                            data: confLow,
+                            borderColor: 'rgba(0, 210, 255, 0.2)',
+                            backgroundColor: 'rgba(0, 210, 255, 0.04)',
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            fill: '-1' // Fills the space between High and Low
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#aeaeae', font: { family: 'Inter' } }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: '#1a1d24' }, ticks: { color: '#aeaeae', font: { family: 'Inter' } } },
+                        y: { grid: { color: '#1a1d24' }, ticks: { color: '#aeaeae', font: { family: 'Inter' } } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
