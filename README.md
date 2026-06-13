@@ -2,6 +2,17 @@
 
 Este é o produto final da nossa plataforma de Inteligência de Dados Públicos (Focada em Saúde / DATASUS). O sistema orquestra agentes de Inteligência Artificial usando LangGraph para extrair, limpar, cruzar e gerar insights sobre o mercado de saúde no Brasil.
 
+## 🌐 Acesse o Terminal Online (GitHub Pages)
+
+Você pode acessar o dashboard interativo diretamente pelo seu navegador, sem precisar instalar nada:
+
+👉 **[Live Dashboard - Consultar IA](https://hkcarre.github.io/brhealth-os/)**
+
+### Links Diretos para Subpáginas:
+*   [📊 Datalake Explorer (Acre)](https://hkcarre.github.io/brhealth-os/datalake.html) - Tabelas e dicionário de dados reais do SUS.
+*   [📈 Previsões de Demanda](https://hkcarre.github.io/brhealth-os/previsoes.html) - Gráficos preditivos de demanda de internações.
+*   [🕸️ Grafo SUS](https://hkcarre.github.io/brhealth-os/grafo.html) - Visualizador de fluxo e tráfego de pacientes entre municípios.
+
 ---
 
 ## 🚀 Como Executar o Projeto Localmente
