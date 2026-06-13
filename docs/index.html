@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Inteligência de Saúde do Brasil | Bloomberg Terminal</title>
+    <meta name="description" content="Terminal de inteligência em saúde pública com dados reais do SUS, CNES e IBGE.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="terminal-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" aria-label="Navegação Lateral">
+            <div class="logo">
+                <span class="logo-accent">BR</span>Health OS
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" id="nav-qa" aria-current="page">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Consultar IA
+                </a>
+                <a href="#" class="nav-item" id="nav-datalake">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    Datalake (Acre)
+                </a>
+                <a href="#" class="nav-item" id="nav-forecast">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Previsões
+                </a>
+                <a href="#" class="nav-item" id="nav-graph">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Grafo SUS
+                </a>
+                <a href="#" class="nav-item" id="nav-settings">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path></svg>
+                    Configurações
+                </a>
+            </nav>
+            <div class="system-status">
+                <div class="status-indicator online" id="status-indicator-dot"></div>
+                <span id="status-text">Simulação Offline</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" aria-label="Conteúdo Principal">
+            <header class="header">
+                <h1>Painel de Inteligência de Saúde</h1>
+                <div class="user-profile">Terminal de Análise</div>
+            </header>
+
+            <div class="dashboard">
+                <!-- Settings Panel (Collapsible) -->
+                <section class="card settings-panel collapsed" id="settings-card" aria-label="Painel de Configurações">
+                    <h2>Configurações do Data Engine</h2>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label for="engine-mode">Modo de Funcionamento:</label>
+                            <select id="engine-mode" class="form-select">
+                                <option value="offline" selected>Simulação Offline (Dados Reais do Acre Pré-carregados)</option>
+                                <option value="online">Conectar com API Real (Local ou Hospedada)</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="api-url">URL da API do Servidor:</label>
+                            <input type="text" id="api-url" class="form-input" value="http://127.0.0.1:8001" placeholder="Ex: http://127.0.0.1:8001">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Query Section -->
+                <section class="card query-section" aria-label="Consulta de Dados">
+                    <h2>Faça uma Pergunta sobre a Saúde Pública (SUS Acre)</h2>
+                    <form id="query-form" class="query-form">
+                        <div class="input-group">
+                            <input type="text" id="question-input" placeholder="Ex: Qual o faturamento total das cirurgias de catarata?" required autocomplete="off">
+                            <button type="submit" id="submit-btn">
+                                <span>Executar</span>
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="suggested-queries">
+                        <span class="suggested-title">Perguntas Rápidas:</span>
+                        <div class="suggested-buttons">
+                            <button class="suggest-btn" data-query="Quantos hospitais distintos existem no Acre?">Hospitais Distintos</button>
+                            <button class="suggest-btn" data-query="Volume de cirurgias de catarata por hospital?">Volume de Catarata</button>
+                            <button class="suggest-btn" data-query="Faturamento total gerado pelas cirurgias de catarata?">Faturamento de Catarata</button>
+                            <button class="suggest-btn" data-query="Quais municípios não tiveram cirurgias de catarata?">Municípios Desatendidos</button>
+                            <button class="suggest-btn" data-query="Qual a média de dias de internação por hospital?">Tempo de Internação</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Results Section -->
+                <div class="results-grid">
+                    <section class="card result-card narrative-card" aria-label="Insight Narrativo">
+                        <h3>Análise Narrativa (Insight)</h3>
+                        <div class="content-box narrative-content" id="narrative-output">
+                            Selecione ou digite uma pergunta acima para iniciar a análise dos dados integrados do SUS.
+                        </div>
+                    </section>
+
+                    <section class="card result-card sql-card" aria-label="Código SQL Executado">
+                        <h3>SQL Executado no Data Lakehouse</h3>
+                        <div class="content-box code-content" id="sql-output">
+                            -- Nenhuma query executada
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Dynamic Visualization Section -->
+                <section class="card chart-card hidden" id="chart-section" aria-label="Visualização Gráfica">
+                    <h3>Visualização de Dados (Gráfico)</h3>
+                    <div class="chart-container">
+                        <canvas id="dashboard-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Data Table Section -->
+                <section class="card data-card" aria-label="Resultados Estruturados">
+                    <h3>Resultados Estruturados (Tabela)</h3>
+                    <div class="table-container">
+                        <table id="results-table">
+                            <thead>
+                                <tr id="table-head">
+                                    <th scope="col">Dados</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr>
+                                    <td class="empty-state">Execute uma pergunta para carregar a tabela</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
