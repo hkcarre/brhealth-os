@@ -1,6 +1,8 @@
 # BRHealth OS - Bloomberg Terminal da Saúde
 
-Este é o Produto Mínimo Viável (MVP) da nossa plataforma de Inteligência de Dados Públicos (Focada em Saúde / DATASUS). O sistema orquestra agentes de Inteligência Artificial usando LangGraph para extrair, limpar, cruzar e gerar insights sobre o mercado de saúde no Brasil.
+Este é o produto final da nossa plataforma de Inteligência de Dados Públicos (Focada em Saúde / DATASUS). O sistema orquestra agentes de Inteligência Artificial usando LangGraph para extrair, limpar, cruzar e gerar insights sobre o mercado de saúde no Brasil.
+
+---
 
 ## 🚀 Como Executar o Projeto Localmente
 
@@ -8,13 +10,12 @@ Siga estes passos para rodar o "Bloomberg Terminal" na sua própria máquina.
 
 ### Pré-requisitos
 - [Python 3.10+](https://www.python.org/downloads/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (Opcional, para rodar o MinIO e Neo4j localmente)
 - Git
 
 ### 1. Clonar o Repositório
 Abra o seu terminal e rode:
 ```bash
-git clone https://github.com/seu-usuario/brhealth-os.git
+git clone https://github.com/hkcarre/brhealth-os.git
 cd brhealth-os
 ```
 
@@ -34,33 +35,40 @@ source venv/bin/activate
 Com o ambiente ativado, instale os pacotes:
 ```bash
 pip install -r requirements.txt
+pip install dbc-to-dbf
 ```
 
-*(Nota: Como acabamos de inicializar o repositório, certifique-se de exportar as dependências com `pip freeze > requirements.txt`)*
-
-### 4. Rodar o Backend e a Interface Gráfica
-Nossa arquitetura roda usando FastAPI. Para ligar o servidor da API e a Interface Gráfica:
+### 4. Executar a Ingestão de Dados Públicos Reais
+Nosso pipeline de IA faz o download, descompressão e cruzamento relacional de dados reais do DATASUS (SIH/SIA), CNES e IBGE. Para rodar a ingestão de dados reais para o Acre:
 ```bash
-uvicorn api:app --port 8000
+python main.py
 ```
-**Pronto!** Agora basta abrir o seu navegador (Chrome/Edge/Safari) e acessar: **http://127.0.0.1:8000**
+
+### 5. Rodar o Backend e a Interface Gráfica
+Para iniciar a API do FastAPI e o painel web:
+```bash
+python -m uvicorn api:app --port 8001
+```
+**Pronto!** Agora basta abrir o seu navegador (Chrome/Edge/Safari) e acessar: **http://127.0.0.1:8001**
+
+---
+
+## ☁️ Hospedagem Web Grátis (Hugging Face Spaces)
+
+Você pode rodar esta aplicação na nuvem de forma gratuita para compartilhar o link com seus colegas:
+
+1. Acesse o [Hugging Face Spaces](https://huggingface.co/spaces) e crie uma conta gratuita.
+2. Clique em **Create new Space**.
+3. Defina um nome para o espaço, selecione **Docker** como o SDK e escolha **Blank** como template.
+4. Conecte com o seu repositório do GitHub `hkcarre/brhealth-os` ou faça upload dos arquivos (incluindo o `Dockerfile` que está na raiz).
+5. O Hugging Face irá ler o `Dockerfile`, compilar a imagem e colocar o painel online de forma 100% gratuita com link HTTPS público!
 
 ---
 
 ## 🏗 Arquitetura do Sistema
 
 O projeto é modular e possui as seguintes camadas:
-- **Data Lakehouse:** DuckDB e Parquet (Processamento ultrarrápido na memória)
+- **Data Lakehouse:** DuckDB e Parquet (Processamento de microdados na memória).
 - **Agentes (LangGraph):** Módulos Python independentes em `agents/` que cuidam da ingestão, limpeza, resolução de entidades (fuzzy matching) e cálculos estatísticos (ARIMA).
 - **Backend:** FastAPI expõe os resultados dos agentes via endpoints HTTP.
 - **Frontend:** Vanilla JS/CSS/HTML servidos pelo FastAPI em um design *Premium Dark Mode*.
-
-## 🛠 Para desenvolvedores
-
-Caso queira executar testes isolados nas *pipelines* de agentes, você pode rodar os scripts individuais de fase:
-```bash
-python main.py        # Fase 1: Ingestão e Limpeza
-python main_phase2.py # Fase 2: Resolução de Entidades e Query QA
-python main_phase3.py # Fase 3: Previsões e Grafo de Conhecimento
-python main_phase4.py # Fase 4: Engenharia de Atributos e Geração de Insights
-```
