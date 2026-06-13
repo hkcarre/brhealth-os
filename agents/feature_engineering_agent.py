@@ -9,41 +9,63 @@ class FeatureState(BaseModel):
     error: str = ""
 
 def feature_node(state: FeatureState) -> FeatureState:
-    print(f"Feature Engineering Agent: Generating KPIs from {state.resolved_path}")
+    print("Feature Engineering Agent: Generating KPIs from master_healthcare in DuckDB...")
     from core.storage import CLEAN_DIR, DuckDBStorage
     
+    os.makedirs(CLEAN_DIR, exist_ok=True)
+    
     try:
-        df = pd.read_parquet(state.resolved_path)
-        
-        # In a real scenario, we would join IBGE data (Enrichment Agent).
-        # For MVP, we will simulate calculating "Capacity Index" and "Market Share"
-        
-        # Calculate volume per entity
-        df_kpi = df.groupby(['canonical_name', 'entity_id']).size().reset_index(name='procedure_volume')
-        
-        total_volume = df_kpi['procedure_volume'].sum()
-        
-        # Feature Engineering
-        df_kpi['market_share_pct'] = (df_kpi['procedure_volume'] / total_volume) * 100
-        
-        # Mocking an Enrichment join (IBGE Population)
-        mock_population = 500000 
-        df_kpi['procedures_per_10k_capita'] = (df_kpi['procedure_volume'] / mock_population) * 10000
-        
-        # Save Features
-        filename_without_ext = os.path.splitext(os.path.basename(state.resolved_path))[0]
-        feature_filename = f"{filename_without_ext}_features.parquet"
-        feature_path = os.path.join(CLEAN_DIR, feature_filename)
-        
-        df_kpi.to_parquet(feature_path, index=False)
-        print(f"Feature Engineering Agent: Calculated {len(df_kpi)} KPI records. Saved to {feature_path}")
-
-        # Update in DuckDB
         db = DuckDBStorage()
-        table_name = f"features_{filename_without_ext}"
-        db.load_parquet(table_name, feature_path)
+        
+        # Calculate KPIs for cataract surgery (code starting with 040505)
+        kpi_query = """
+        SELECT 
+          hospital_nome,
+          cnes,
+          hospital_uf,
+          COUNT(*) AS procedure_volume,
+          SUM(valor_total) AS total_revenue,
+          ROUND(AVG(valor_total), 2) AS average_cost,
+          ROUND(AVG(dias_permanencia), 1) AS average_stay_days
+        FROM master_healthcare
+        WHERE procedimento_codigo LIKE '040505%'
+        GROUP BY hospital_nome, cnes, hospital_uf
+        """
+        df_kpi = db.execute(kpi_query)
+        
+        if df_kpi.empty:
+            print("Feature Engineering Agent: No cataract surgeries found. Calculating general KPIs.")
+            # Fallback to general if no cataract surgeries (e.g. general stats)
+            kpi_query_fallback = """
+            SELECT 
+              hospital_nome,
+              cnes,
+              hospital_uf,
+              COUNT(*) AS procedure_volume,
+              SUM(valor_total) AS total_revenue,
+              ROUND(AVG(valor_total), 2) AS average_cost,
+              ROUND(AVG(dias_permanencia), 1) AS average_stay_days
+            FROM master_healthcare
+            GROUP BY hospital_nome, cnes, hospital_uf
+            """
+            df_kpi = db.execute(kpi_query_fallback)
+            
+        total_volume = df_kpi['procedure_volume'].sum()
+        total_rev = df_kpi['total_revenue'].sum()
+        
+        # Calculate market share
+        df_kpi['market_share_vol_pct'] = round((df_kpi['procedure_volume'] / total_volume) * 100, 2) if total_volume > 0 else 0.0
+        df_kpi['market_share_rev_pct'] = round((df_kpi['total_revenue'] / total_rev) * 100, 2) if total_rev > 0 else 0.0
+        
+        # Save features Parquet
+        feature_path = os.path.join(CLEAN_DIR, "features_healthcare.parquet")
+        df_kpi.to_parquet(feature_path, index=False)
+        print(f"Feature Engineering Agent: Saved {len(df_kpi)} records to {feature_path}")
+        
+        # Load features into DuckDB
+        db.load_parquet("features_healthcare", feature_path)
         db.close()
-
+        
         state.feature_path = feature_path
         state.status = "success"
         

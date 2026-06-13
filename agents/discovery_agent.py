@@ -19,17 +19,30 @@ def get_llm():
 def discovery_node(state: DiscoveryState) -> DiscoveryState:
     print(f"Discovery Agent: Searching for datasets matching '{state.query}'")
     
-    # In a full implementation, this agent would crawl DATASUS/gov.br portals.
-    # For MVP, we simulate discovering the CNES ST file on FTP.
-    print("Discovery Agent: Found matching dataset on DATASUS FTP.")
-    
+    # In the real implementation, we discover the DATASUS files and IBGE API target.
+    # Default to Acre (AC) and competence 2401 (Jan 2024) for lightweight fast execution.
     state.datasets_found = [
         {
-            "name": "CNES_Subtipos",
-            "url": "ftp.datasus.gov.br",
-            "path": "/dissemin/publicos/CNES/200508_/Dados/ST.dbf", # Simulated DBF
-            "filename": "ST2401.dbf" # Fictional filename for 2024 month 01
+            "name": "sih",
+            "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIHSUS/200801_/Dados/RDAC2401.dbc",
+            "filename": "RDAC2401.dbc"
+        },
+        {
+            "name": "sia",
+            "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/PAAC2401.dbc",
+            "filename": "PAAC2401.dbc"
+        },
+        {
+            "name": "cnes",
+            "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/CNES/200508_/Auxiliar/TAB_CNES.zip",
+            "filename": "TAB_CNES.zip"
+        },
+        {
+            "name": "ibge",
+            "url": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",
+            "filename": "municipios.json"
         }
     ]
     state.status = "success"
+    print("Discovery Agent: Discovered real SIH, SIA, CNES, and IBGE datasets.")
     return state

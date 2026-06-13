@@ -9,44 +9,87 @@ class IngestionState(BaseModel):
     raw_path: str = ""
     error: str = ""
 
-def download_cnes_ftp(filename: str, local_path: str):
-    """
-    Connect to DATASUS FTP and download a specific file.
-    Example: ftp.datasus.gov.br /dissemin/publicos/CNES/200508_/Dados/
-    For MVP, we'll fetch a small reference file or a sample.
-    """
-    ftp = ftplib.FTP('ftp.datasus.gov.br')
-    ftp.login()
-    ftp.cwd('/dissemin/publicos/CNES/200508_/Dados/ST') # Using ST (Subtipos) or similar small reference table
-    
-    with open(local_path, 'wb') as f:
-        ftp.retrbinary(f'RETR {filename}', f.write)
-    ftp.quit()
+import urllib.request
+import zipfile
+import requests
+import json
 
 def ingest_node(state: IngestionState) -> IngestionState:
-    print(f"Ingestion Agent: Starting download for {state.target_file}")
+    print(f"Ingestion Agent: Starting ingestion for dataset: {state.dataset_name} ({state.target_file})")
     from core.storage import RAW_DIR
-    import pandas as pd
     
+    os.makedirs(RAW_DIR, exist_ok=True)
     local_filepath = os.path.join(RAW_DIR, state.target_file)
+    
     try:
-        # download_cnes_ftp(state.target_file, local_filepath) # FTP is unstable
-        raise Exception("FTP Timeout Simulated")
+        if state.dataset_name == "sih":
+            url = f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIHSUS/200801_/Dados/{state.target_file}"
+            print(f"Ingestion Agent: Downloading SIH file from mirror: {url}")
+            urllib.request.urlretrieve(url, local_filepath)
+            state.raw_path = local_filepath
+            state.status = "success"
+            print(f"Ingestion Agent: Successfully downloaded SIH file to {local_filepath}")
+            
+        elif state.dataset_name == "sia":
+            url = f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/{state.target_file}"
+            print(f"Ingestion Agent: Downloading SIA file from mirror: {url}")
+            urllib.request.urlretrieve(url, local_filepath)
+            state.raw_path = local_filepath
+            state.status = "success"
+            print(f"Ingestion Agent: Successfully downloaded SIA file to {local_filepath}")
+            
+        elif state.dataset_name == "cnes":
+            # For CNES, we download TAB_CNES.zip and extract CADGERAC.dbf (Acre General Registry)
+            zip_url = "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/CNES/200508_/Auxiliar/TAB_CNES.zip"
+            zip_filepath = os.path.join(RAW_DIR, "TAB_CNES.zip")
+            
+            if not os.path.exists(zip_filepath):
+                print(f"Ingestion Agent: Downloading CNES Aux zip: {zip_url}")
+                urllib.request.urlretrieve(zip_url, zip_filepath)
+            else:
+                print("Ingestion Agent: TAB_CNES.zip already exists locally.")
+                
+            # Extract CADGERAC.dbf to RAW_DIR
+            target_dbf = "DBF/CADGERAC.dbf"
+            extracted_path = os.path.join(RAW_DIR, "CADGERAC.dbf")
+            print(f"Ingestion Agent: Extracting {target_dbf} from ZIP to {extracted_path}...")
+            
+            with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
+                # We extract it to a temporary location or read it directly
+                # To keep it simple: extract and rename/move
+                zip_ref.extract(target_dbf, RAW_DIR)
+                # Move from RAW_DIR/DBF/CADGERAC.dbf to RAW_DIR/CADGERAC.dbf
+                os.replace(os.path.join(RAW_DIR, target_dbf), extracted_path)
+                # Clean up empty DBF folder if needed
+                try:
+                    os.rmdir(os.path.join(RAW_DIR, "DBF"))
+                except Exception:
+                    pass
+                    
+            state.raw_path = extracted_path
+            state.status = "success"
+            print(f"Ingestion Agent: Successfully extracted CADGER DBF to {extracted_path}")
+            
+        elif state.dataset_name == "ibge":
+            url = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
+            print(f"Ingestion Agent: Fetching IBGE municipalities: {url}")
+            resp = requests.get(url)
+            resp.raise_for_status()
+            data = resp.json()
+            
+            with open(local_filepath, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+                
+            state.raw_path = local_filepath
+            state.status = "success"
+            print(f"Ingestion Agent: Successfully downloaded IBGE data to {local_filepath}")
+            
+        else:
+            raise ValueError(f"Unknown dataset name: {state.dataset_name}")
+            
     except Exception as e:
-        print(f"Ingestion Agent: DATASUS FTP failed ({e}). Generating mock data for MVP.")
-        # Create a mock CSV representing the downloaded DBF data
-        mock_data = {
-            'CNES': ['1234567', '7654321', '9999999', '1234568'],
-            'NOME FANTASIA': ['HOSPITAL SAO JOSE', 'CLINICA OFTALMOLOGICA', 'POSTO DE SAUDE', 'HOSP SAO JOSE LTDA'],
-            'COMPETENCIA': ['202401', '202401', '202401', '202401'],
-            'TIPO UNIDADE': ['05', '04', '02', '05']
-        }
-        df = pd.DataFrame(mock_data)
-        local_filepath = os.path.join(RAW_DIR, "mock_cnes.csv")
-        df.to_csv(local_filepath, index=False)
-        
-        state.status = "success"
-        state.raw_path = local_filepath
-        print(f"Ingestion Agent: Fallback successful. Mock data saved to {local_filepath}")
+        state.status = "failed"
+        state.error = str(e)
+        print(f"Ingestion Agent: Ingestion failed with error: {e}")
         
     return state
