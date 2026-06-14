@@ -54,6 +54,23 @@ document.addEventListener('DOMContentLoaded', () => {
         el.textContent = stateName;
     });
 
+    // Update the Offline Engine option label in Settings
+    const offlineOption = document.querySelector('#engine-mode option[value="offline"]');
+    if (offlineOption) {
+        offlineOption.textContent = `Simulação Offline (Dados Reais de ${stateName} Pré-carregados)`;
+    }
+
+    // Update suggested queries buttons
+    document.querySelectorAll('.suggest-btn').forEach(btn => {
+        let query = btn.getAttribute('data-query');
+        if (selectedState === 'SP') {
+            query = query.replace(/Acre/g, 'São Paulo');
+        } else {
+            query = query.replace(/São Paulo/g, 'Acre');
+        }
+        btn.setAttribute('data-query', query);
+    });
+
     // Update sidebar navigation links to carry the state parameter
     document.querySelectorAll('.sidebar .nav-menu a').forEach(link => {
         const href = link.getAttribute('href');
@@ -129,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(`${apiUrl}/api/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question })
+                    body: JSON.stringify({ question, state: selectedState })
                 });
                 if (!response.ok) throw new Error(`Status ${response.status}`);
                 const res = await response.json();
@@ -165,7 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetButtonState() {
         submitBtn.disabled = false;
         submitBtn.querySelector('span').textContent = 'Executar';
-        submitBtn.querySelector('svg').style.animation = 'none';    // OFFLINE MOCK QUERY ENGINE
+        submitBtn.querySelector('svg').style.animation = 'none';
+    }
+
+    // OFFLINE MOCK QUERY ENGINE
     function processSimulatedQuery(question) {
         const q = question.toLowerCase().trim();
 

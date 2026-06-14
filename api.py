@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from typing import Optional
 import json
 import os
 
@@ -21,6 +22,7 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     question: str
+    state: Optional[str] = "AC"
 
 class QueryResponse(BaseModel):
     sql_executed: str
@@ -33,7 +35,7 @@ def read_root():
 
 @app.post("/api/ask", response_model=QueryResponse)
 def ask_question(req: QueryRequest):
-    state = QAState(question=req.question)
+    state = QAState(question=req.question, state=req.state or "AC")
     result = qa_node(state)
     
     if result.status == "failed":
