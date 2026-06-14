@@ -23,7 +23,7 @@
                 </a>
                 <a href="datalake.html" class="nav-item active" id="nav-datalake" aria-current="page">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                    Datalake (Acre)
+                    Datalake (<span class="state-name-text">Acre</span>)
                 </a>
                 <a href="previsoes.html" class="nav-item" id="nav-forecast">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
@@ -44,26 +44,30 @@
         <main class="main-content" aria-label="Conteúdo Principal">
             <header class="header">
                 <h1>Datalake Explorer</h1>
-                <div class="user-profile">Dicionário & Modelagem</div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <label for="state-selector" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Estado:</label>
+                    <select id="state-selector" class="form-select" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; border-color: var(--accent-primary); background-color: rgba(0,0,0,0.4); color: var(--accent-primary); font-weight: 700;">
+                        <option value="AC" selected>AC (Acre)</option>
+                        <option value="SP">SP (São Paulo)</option>
+                    </select>
+                    <div class="user-profile">Dicionário & Modelagem</div>
+                </div>
             </header>
 
             <div class="dashboard">
                 <!-- Data Lakehouse Summary Card -->
                 <section class="card" aria-label="Sumário do Datalake">
-                    <h2>Estatísticas e Integração do Datalake (Acre)</h2>
+                    <h2>Estatísticas e Integração do Datalake (<span class="state-name-text">Acre</span>)</h2>
                     <div class="results-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
                         <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">
                             <p style="color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Total de Registros (master_healthcare)</p>
-                            <h3 style="font-size: 2rem; color: var(--accent-primary); margin: 0.5rem 0;">110.151</h3>
-                            <p style="color: var(--text-muted); font-size: 0.85rem;">Internações e procedimentos ambulatoriais no Acre consolidados para Janeiro/2024.</p>
+                            <h3 style="font-size: 2rem; color: var(--accent-primary); margin: 0.5rem 0;" id="total-records-text">110.151</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;" id="records-description">Internações e procedimentos ambulatoriais no Acre consolidados para Janeiro/2024.</p>
                         </div>
                         <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">
                             <p style="color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Fontes Integradas</p>
-                            <ul style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 4px;">
-                                <li><strong>DATASUS SIH:</strong> Hospitalizações (arquivos RD)</li>
-                                <li><strong>DATASUS SIA:</strong> Ambulatório & Catarata (arquivos PA)</li>
-                                <li><strong>CNES:</strong> Cadastro Geral de Estabelecimentos (CADGER)</li>
-                                <li><strong>IBGE Localidades:</strong> Mapeamento geográfico de municípios</li>
+                            <ul id="sources-list" style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 4px;">
+                                <!-- Dynamic list -->
                             </ul>
                         </div>
                     </div>
@@ -175,5 +179,69 @@ CREATE TABLE clean_cnes (
             </div>
         </main>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Resolve selected state from URL or localStorage or default to AC
+            const urlParams = new URLSearchParams(window.location.search);
+            let selectedState = urlParams.get('state') || localStorage.getItem('selectedState') || 'AC';
+            selectedState = selectedState.toUpperCase();
+            if (selectedState !== 'AC' && selectedState !== 'SP') {
+                selectedState = 'AC';
+            }
+            localStorage.setItem('selectedState', selectedState);
+
+            // Update state dropdown
+            const stateSelector = document.getElementById('state-selector');
+            if (stateSelector) {
+                stateSelector.value = selectedState;
+                stateSelector.addEventListener('change', () => {
+                    const newState = stateSelector.value;
+                    localStorage.setItem('selectedState', newState);
+                    window.location.href = window.location.pathname + '?state=' + newState;
+                });
+            }
+
+            // Update state text elements
+            const stateNameMap = { 'AC': 'Acre', 'SP': 'São Paulo' };
+            const stateName = stateNameMap[selectedState];
+            document.querySelectorAll('.state-name-text').forEach(el => {
+                el.textContent = stateName;
+            });
+
+            // Update sidebar navigation links to carry the state parameter
+            document.querySelectorAll('.sidebar .nav-menu a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const cleanHref = href.split('?')[0];
+                    link.href = cleanHref + '?state=' + selectedState;
+                }
+            });
+
+            // Update data stats and files dynamically
+            const recordsText = document.getElementById('total-records-text');
+            const recordsDesc = document.getElementById('records-description');
+            const sourcesList = document.getElementById('sources-list');
+
+            if (selectedState === 'SP') {
+                recordsText.textContent = '348.409';
+                recordsDesc.textContent = 'Internações e procedimentos ambulatoriais em São Paulo consolidados para Janeiro/2024.';
+                sourcesList.innerHTML = `
+                    <li><strong>DATASUS SIH:</strong> RDSP2401.dbc (Hospitalizações)</li>
+                    <li><strong>DATASUS SIA:</strong> PASP2401a.dbc, PASP2401b.dbc, PASP2401c.dbc (Ambulatório & Catarata)</li>
+                    <li><strong>CNES:</strong> CADGERSP.dbf (Cadastro Geral de Estabelecimentos)</li>
+                    <li><strong>IBGE Localidades:</strong> municipios.json (Mapeamento geográfico)</li>
+                `;
+            } else {
+                recordsText.textContent = '110.151';
+                recordsDesc.textContent = 'Internações e procedimentos ambulatoriais no Acre consolidados para Janeiro/2024.';
+                sourcesList.innerHTML = `
+                    <li><strong>DATASUS SIH:</strong> RDAC2401.dbc (Hospitalizações)</li>
+                    <li><strong>DATASUS SIA:</strong> PAAC2401.dbc (Ambulatório & Catarata)</li>
+                    <li><strong>CNES:</strong> CADGERAC.dbf (Cadastro Geral de Estabelecimentos)</li>
+                    <li><strong>IBGE Localidades:</strong> municipios.json (Mapeamento geográfico)</li>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>

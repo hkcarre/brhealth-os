@@ -19,30 +19,70 @@ def get_llm():
 def discovery_node(state: DiscoveryState) -> DiscoveryState:
     print(f"Discovery Agent: Searching for datasets matching '{state.query}'")
     
-    # In the real implementation, we discover the DATASUS files and IBGE API target.
-    # Default to Acre (AC) and competence 2401 (Jan 2024) for lightweight fast execution.
-    state.datasets_found = [
-        {
-            "name": "sih",
-            "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIHSUS/200801_/Dados/RDAC2401.dbc",
-            "filename": "RDAC2401.dbc"
-        },
-        {
-            "name": "sia",
-            "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/PAAC2401.dbc",
-            "filename": "PAAC2401.dbc"
-        },
-        {
-            "name": "cnes",
-            "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/CNES/200508_/Auxiliar/TAB_CNES.zip",
-            "filename": "TAB_CNES.zip"
-        },
-        {
-            "name": "ibge",
-            "url": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",
-            "filename": "municipios.json"
-        }
-    ]
+    # Extract state from query (default to AC)
+    q = state.query.lower()
+    state_code = "AC"
+    if "são paulo" in q or "sao paulo" in q or "sp" in q:
+        state_code = "SP"
+        
+    print(f"Discovery Agent: Detected state: {state_code}")
+    
+    if state_code == "SP":
+        state.datasets_found = [
+            {
+                "name": "sih",
+                "url": f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIHSUS/200801_/Dados/RD{state_code}2401.dbc",
+                "filename": f"RD{state_code}2401.dbc"
+            },
+            {
+                "name": "sia_a",
+                "url": f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/PA{state_code}2401a.dbc",
+                "filename": f"PA{state_code}2401a.dbc"
+            },
+            {
+                "name": "sia_b",
+                "url": f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/PA{state_code}2401b.dbc",
+                "filename": f"PA{state_code}2401b.dbc"
+            },
+            {
+                "name": "sia_c",
+                "url": f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/PA{state_code}2401c.dbc",
+                "filename": f"PA{state_code}2401c.dbc"
+            },
+            {
+                "name": "cnes",
+                "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/CNES/200508_/Auxiliar/TAB_CNES.zip",
+                "filename": f"TAB_CNES_{state_code}.zip"
+            },
+            {
+                "name": "ibge",
+                "url": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",
+                "filename": "municipios.json"
+            }
+        ]
+    else:
+        state.datasets_found = [
+            {
+                "name": "sih",
+                "url": f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIHSUS/200801_/Dados/RD{state_code}2401.dbc",
+                "filename": f"RD{state_code}2401.dbc"
+            },
+            {
+                "name": "sia",
+                "url": f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/PA{state_code}2401.dbc",
+                "filename": f"PA{state_code}2401.dbc"
+            },
+            {
+                "name": "cnes",
+                "url": "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/CNES/200508_/Auxiliar/TAB_CNES.zip",
+                "filename": f"TAB_CNES_{state_code}.zip"
+            },
+            {
+                "name": "ibge",
+                "url": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",
+                "filename": "municipios.json"
+            }
+        ]
     state.status = "success"
-    print("Discovery Agent: Discovered real SIH, SIA, CNES, and IBGE datasets.")
+    print(f"Discovery Agent: Discovered real SIH, SIA, CNES, and IBGE datasets for {state_code}.")
     return state

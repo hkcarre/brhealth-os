@@ -25,7 +25,7 @@
                 </a>
                 <a href="datalake.html" class="nav-item" id="nav-datalake">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                    Datalake (Acre)
+                    Datalake (<span class="state-name-text">Acre</span>)
                 </a>
                 <a href="previsoes.html" class="nav-item active" id="nav-forecast" aria-current="page">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
@@ -46,13 +46,20 @@
         <main class="main-content" aria-label="Conteúdo Principal">
             <header class="header">
                 <h1>Previsões e Planejamento Preditivo</h1>
-                <div class="user-profile">Modelo ARIMA-SUS</div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <label for="state-selector" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Estado:</label>
+                    <select id="state-selector" class="form-select" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; border-color: var(--accent-primary); background-color: rgba(0,0,0,0.4); color: var(--accent-primary); font-weight: 700;">
+                        <option value="AC" selected>AC (Acre)</option>
+                        <option value="SP">SP (São Paulo)</option>
+                    </select>
+                    <div class="user-profile">Modelo ARIMA-SUS</div>
+                </div>
             </header>
 
             <div class="dashboard">
                 <!-- Forecast Chart Card -->
                 <section class="card chart-card" aria-label="Gráfico de Projeção">
-                    <h2>Projeção de Demanda Cirúrgica (Catarata no Acre) - 2024</h2>
+                    <h2>Projeção de Demanda Cirúrgica (Catarata em <span class="state-name-text">Acre</span>) - 2024</h2>
                     <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
                         Modelo estatístico preditivo projetando o crescimento mensal de cirurgias de catarata, baseado no histórico de encaminhamentos ambulatoriais.
                     </p>
@@ -77,49 +84,8 @@
                                     <th scope="col">Prioridade Recomendada</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Rio Branco</strong></td>
-                                    <td>142 pacientes</td>
-                                    <td>R$ 94.004,00</td>
-                                    <td><span style="color: var(--accent-secondary); font-weight: bold;">MÉDIA (Volume Alto)</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Sena Madureira</strong></td>
-                                    <td>48 pacientes</td>
-                                    <td>R$ 31.776,00</td>
-                                    <td><span style="color: var(--accent-primary); font-weight: bold;">ALTA (Gargalo de Acesso)</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Senador Guiomard</strong></td>
-                                    <td>35 pacientes</td>
-                                    <td>R$ 23.170,00</td>
-                                    <td><span style="color: var(--accent-primary); font-weight: bold;">ALTA</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Cruzeiro do Sul</strong></td>
-                                    <td>28 pacientes</td>
-                                    <td>R$ 18.536,00</td>
-                                    <td><span style="color: var(--accent-secondary); font-weight: bold;">MÉDIA</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Plácido de Castro</strong></td>
-                                    <td>22 pacientes</td>
-                                    <td>R$ 14.564,00</td>
-                                    <td><span style="color: var(--accent-danger); font-weight: bold;">CRÍTICA (Zero atendimentos no mês)</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Porto Acre</strong></td>
-                                    <td>18 pacientes</td>
-                                    <td>R$ 11.916,00</td>
-                                    <td><span style="color: var(--accent-danger); font-weight: bold;">CRÍTICA (Zero atendimentos no mês)</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Acrelândia</strong></td>
-                                    <td>15 pacientes</td>
-                                    <td>R$ 9.930,00</td>
-                                    <td><span style="color: var(--text-secondary);">BAIXA</span></td>
-                                </tr>
+                            <tbody id="allocation-table-body">
+                                <!-- Dynamic rows -->
                             </tbody>
                         </table>
                     </div>
@@ -128,16 +94,100 @@
         </main>
     </div>
 
-    <!-- Page script to render Forecast Line Chart -->
+    <!-- Page script to render Forecast Line Chart and Table dynamically -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Resolve selected state from URL or localStorage or default to AC
+            const urlParams = new URLSearchParams(window.location.search);
+            let selectedState = urlParams.get('state') || localStorage.getItem('selectedState') || 'AC';
+            selectedState = selectedState.toUpperCase();
+            if (selectedState !== 'AC' && selectedState !== 'SP') {
+                selectedState = 'AC';
+            }
+            localStorage.setItem('selectedState', selectedState);
+
+            // Update state dropdown
+            const stateSelector = document.getElementById('state-selector');
+            if (stateSelector) {
+                stateSelector.value = selectedState;
+                stateSelector.addEventListener('change', () => {
+                    const newState = stateSelector.value;
+                    localStorage.setItem('selectedState', newState);
+                    window.location.href = window.location.pathname + '?state=' + newState;
+                });
+            }
+
+            // Update state text elements
+            const stateNameMap = { 'AC': 'Acre', 'SP': 'São Paulo' };
+            const stateName = stateNameMap[selectedState];
+            document.querySelectorAll('.state-name-text').forEach(el => {
+                el.textContent = stateName;
+            });
+
+            // Update sidebar navigation links to carry the state parameter
+            document.querySelectorAll('.sidebar .nav-menu a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const cleanHref = href.split('?')[0];
+                    link.href = cleanHref + '?state=' + selectedState;
+                }
+            });
+
+            // Populate table dynamically
+            const tableBody = document.getElementById('allocation-table-body');
+            const dataAC = [
+                { city: 'Rio Branco', queue: '142 pacientes', cost: 'R$ 94.004,00', priority: 'MÉDIA (Volume Alto)', color: 'var(--accent-secondary)' },
+                { city: 'Sena Madureira', queue: '48 pacientes', cost: 'R$ 31.776,00', priority: 'ALTA (Gargalo de Acesso)', color: 'var(--accent-primary)' },
+                { city: 'Senador Guiomard', queue: '35 pacientes', cost: 'R$ 23.170,00', priority: 'ALTA', color: 'var(--accent-primary)' },
+                { city: 'Cruzeiro do Sul', queue: '28 pacientes', cost: 'R$ 18.536,00', priority: 'MÉDIA', color: 'var(--accent-secondary)' },
+                { city: 'Plácido de Castro', queue: '22 pacientes', cost: 'R$ 14.564,00', priority: 'CRÍTICA (Zero atendimentos no mês)', color: 'var(--accent-danger)' },
+                { city: 'Porto Acre', queue: '18 pacientes', cost: 'R$ 11.916,00', priority: 'CRÍTICA (Zero atendimentos no mês)', color: 'var(--accent-danger)' },
+                { city: 'Acrelândia', queue: '15  pacientes', cost: 'R$ 9.930,00', priority: 'BAIXA', color: 'var(--text-secondary)' }
+            ];
+            const dataSP = [
+                { city: 'São Paulo', queue: '2.410 pacientes', cost: 'R$ 1.595.420,00', priority: 'MÉDIA (Volume Alto)', color: 'var(--accent-secondary)' },
+                { city: 'Campinas', queue: '420 pacientes', cost: 'R$ 278.040,00', priority: 'MÉDIA', color: 'var(--accent-secondary)' },
+                { city: 'São José dos Campos', queue: '350 pacientes', cost: 'R$ 231.700,00', priority: 'MÉDIA', color: 'var(--accent-secondary)' },
+                { city: 'São José do Rio Preto', queue: '310 pacientes', cost: 'R$ 205.220,00', priority: 'ALTA (Demanda Local)', color: 'var(--accent-primary)' },
+                { city: 'Jundiaí', queue: '180 pacientes', cost: 'R$ 119.160,00', priority: 'ALTA', color: 'var(--accent-primary)' },
+                { city: 'Sorocaba', queue: '120 pacientes', cost: 'R$ 79.440,00', priority: 'ALTA', color: 'var(--accent-primary)' },
+                { city: 'Piracicaba', queue: '88 pacientes', cost: 'R$ 58.256,00', priority: 'CRÍTICA (Zero atendimentos no mês)', color: 'var(--accent-danger)' },
+                { city: 'Ribeirão Preto', queue: '75 pacientes', cost: 'R$ 49.650,00', priority: 'CRÍTICA (Fila em Crescimento)', color: 'var(--accent-danger)' },
+                { city: 'Santos', queue: '60 pacientes', cost: 'R$ 39.720,00', priority: 'BAIXA', color: 'var(--text-secondary)' }
+            ];
+
+            const rows = selectedState === 'SP' ? dataSP : dataAC;
+            let rowsHtml = '';
+            rows.forEach(r => {
+                rowsHtml += `
+                    <tr>
+                        <td><strong>${r.city}</strong></td>
+                        <td>${r.queue}</td>
+                        <td>${r.cost}</td>
+                        <td><span style="color: ${r.color}; font-weight: bold;">${r.priority}</span></td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = rowsHtml;
+
+            // Render chart dynamically
             const ctx = document.getElementById('forecast-chart').getContext('2d');
-            
             const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            const actualVolume = [346, null, null, null, null, null, null, null, null, null, null, null];
-            const projectedVolume = [346, 355, 370, 362, 385, 400, 415, 425, 410, 430, 445, 460];
-            const confHigh = [346, 380, 405, 400, 430, 455, 480, 495, 485, 510, 530, 550];
-            const confLow = [346, 330, 335, 324, 340, 345, 350, 355, 335, 350, 360, 370];
+            
+            const actualVolumeAC = [346, null, null, null, null, null, null, null, null, null, null, null];
+            const projectedVolumeAC = [346, 355, 370, 362, 385, 400, 415, 425, 410, 430, 445, 460];
+            const confHighAC = [346, 380, 405, 400, 430, 455, 480, 495, 485, 510, 530, 550];
+            const confLowAC = [346, 330, 335, 324, 340, 345, 350, 355, 335, 350, 360, 370];
+
+            const actualVolumeSP = [14890, null, null, null, null, null, null, null, null, null, null, null];
+            const projectedVolumeSP = [14890, 15100, 15400, 15250, 15700, 16100, 16400, 16600, 16200, 16700, 17100, 17500];
+            const confHighSP = [14890, 15800, 16500, 16200, 17000, 17800, 18500, 19000, 18400, 19200, 20000, 20700];
+            const confLowSP = [14890, 14200, 14300, 14000, 14400, 14600, 14800, 15000, 14500, 14900, 15100, 15300];
+
+            const actual = selectedState === 'SP' ? actualVolumeSP : actualVolumeAC;
+            const projected = selectedState === 'SP' ? projectedVolumeSP : projectedVolumeAC;
+            const high = selectedState === 'SP' ? confHighSP : confHighAC;
+            const low = selectedState === 'SP' ? confLowSP : confLowAC;
 
             new Chart(ctx, {
                 type: 'line',
@@ -145,8 +195,8 @@
                     labels: months,
                     datasets: [
                         {
-                            label: 'Volume Real (Acre)',
-                            data: actualVolume,
+                            label: `Volume Real (${stateName})`,
+                            data: actual,
                             borderColor: '#ff9f0a',
                             backgroundColor: '#ff9f0a',
                             pointRadius: 6,
@@ -156,7 +206,7 @@
                         },
                         {
                             label: 'Projeção de Demanda (Média)',
-                            data: projectedVolume,
+                            data: projected,
                             borderColor: '#00d2ff',
                             borderDash: [5, 5],
                             backgroundColor: 'transparent',
@@ -165,7 +215,7 @@
                         },
                         {
                             label: 'Margem Limite Superior',
-                            data: confHigh,
+                            data: high,
                             borderColor: 'rgba(0, 210, 255, 0.2)',
                             backgroundColor: 'transparent',
                             borderWidth: 1,
@@ -174,12 +224,12 @@
                         },
                         {
                             label: 'Margem Limite Inferior',
-                            data: confLow,
+                            data: low,
                             borderColor: 'rgba(0, 210, 255, 0.2)',
                             backgroundColor: 'rgba(0, 210, 255, 0.04)',
                             borderWidth: 1,
                             pointRadius: 0,
-                            fill: '-1' // Fills the space between High and Low
+                            fill: '-1'
                         }
                     ]
                 },

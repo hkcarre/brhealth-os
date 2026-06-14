@@ -30,7 +30,7 @@ def ingest_node(state: IngestionState) -> IngestionState:
             state.status = "success"
             print(f"Ingestion Agent: Successfully downloaded SIH file to {local_filepath}")
             
-        elif state.dataset_name == "sia":
+        elif state.dataset_name.startswith("sia"):
             url = f"https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/SIASUS/200801_/Dados/{state.target_file}"
             print(f"Ingestion Agent: Downloading SIA file from mirror: {url}")
             urllib.request.urlretrieve(url, local_filepath)
@@ -39,9 +39,12 @@ def ingest_node(state: IngestionState) -> IngestionState:
             print(f"Ingestion Agent: Successfully downloaded SIA file to {local_filepath}")
             
         elif state.dataset_name == "cnes":
-            # For CNES, we download TAB_CNES.zip and extract CADGERAC.dbf (Acre General Registry)
+            # Extract the state code from target_file (e.g. TAB_CNES_SP.zip -> SP)
+            state_code = state.target_file.replace("TAB_CNES_", "").replace(".zip", "")
+            print(f"Ingestion Agent: Mapped state code for CNES: {state_code}")
+            
             zip_url = "https://datasus-ftp-mirror.nyc3.cdn.digitaloceanspaces.com/CNES/200508_/Auxiliar/TAB_CNES.zip"
-            zip_filepath = os.path.join(RAW_DIR, "TAB_CNES.zip")
+            zip_filepath = os.path.join(RAW_DIR, "TAB_CNES.zip") # We keep the general name so we reuse the 35MB download!
             
             if not os.path.exists(zip_filepath):
                 print(f"Ingestion Agent: Downloading CNES Aux zip: {zip_url}")
@@ -49,16 +52,14 @@ def ingest_node(state: IngestionState) -> IngestionState:
             else:
                 print("Ingestion Agent: TAB_CNES.zip already exists locally.")
                 
-            # Extract CADGERAC.dbf to RAW_DIR
-            target_dbf = "DBF/CADGERAC.dbf"
-            extracted_path = os.path.join(RAW_DIR, "CADGERAC.dbf")
+            # Extract CADGER{state_code}.dbf to RAW_DIR
+            target_dbf = f"DBF/CADGER{state_code}.dbf"
+            extracted_path = os.path.join(RAW_DIR, f"CADGER{state_code}.dbf")
             print(f"Ingestion Agent: Extracting {target_dbf} from ZIP to {extracted_path}...")
             
             with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
-                # We extract it to a temporary location or read it directly
-                # To keep it simple: extract and rename/move
                 zip_ref.extract(target_dbf, RAW_DIR)
-                # Move from RAW_DIR/DBF/CADGERAC.dbf to RAW_DIR/CADGERAC.dbf
+                # Move from RAW_DIR/DBF/CADGER{state_code}.dbf to RAW_DIR/CADGER{state_code}.dbf
                 os.replace(os.path.join(RAW_DIR, target_dbf), extracted_path)
                 # Clean up empty DBF folder if needed
                 try:

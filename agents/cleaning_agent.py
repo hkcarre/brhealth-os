@@ -58,7 +58,7 @@ def clean_node(state: CleaningState) -> CleaningState:
             df['proc_rea'] = df['proc_rea'].astype(str).str.strip().str.zfill(10)
             df['munic_res'] = df['munic_res'].astype(str).str.strip().str.zfill(6)
             
-        elif state.dataset_name == "sia":
+        elif state.dataset_name.startswith("sia"):
             # 1. Decompress DBC to DBF
             dbf_path = state.raw_path.replace(".dbc", ".dbf")
             if not os.path.exists(dbf_path):
@@ -68,12 +68,31 @@ def clean_node(state: CleaningState) -> CleaningState:
             else:
                 print(f"Cleaning Agent: DBF already exists: {dbf_path}")
                 
-            # 2. Read DBF
-            print(f"Cleaning Agent: Reading DBF {dbf_path}")
+            # 2. Read DBF row by row and filter for cataract surgeries (040505%) to save memory
+            print(f"Cleaning Agent: Reading DBF row by row to filter cataract procedures: {dbf_path}")
             table = DBF(dbf_path, encoding="iso-8859-1")
-            df = pd.DataFrame(iter(table))
+            records = []
             
-            # 3. Standardize column names to lowercase
+            for row in table:
+                proc_id = ""
+                if 'PA_PROC_ID' in row:
+                    proc_id = str(row['PA_PROC_ID']).strip()
+                else:
+                    for k, v in row.items():
+                        if k.strip().upper() == 'PA_PROC_ID':
+                            proc_id = str(v).strip()
+                            break
+                            
+                if proc_id.startswith('040505'):
+                    cleaned_row = {str(k).strip().lower(): v for k, v in row.items()}
+                    records.append(cleaned_row)
+                    
+            print(f"Cleaning Agent: Filtered {len(records)} cataract surgery records from SIA.")
+            df = pd.DataFrame(records)
+            if df.empty:
+                df = pd.DataFrame(columns=['pa_coduni', 'pa_proc_id', 'pa_valapr', 'pa_munpcn', 'pa_idade', 'pa_sexo', 'pa_cmp'])
+            
+            # 3. Standardize column names to lowercase (already done during cleaning_row above, but safe to run)
             df.columns = [str(c).strip().lower() for c in df.columns]
             
             # 4. Map columns Pa_coduni -> cnes, pa_proc_id -> proc_rea, etc.

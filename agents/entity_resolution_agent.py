@@ -21,6 +21,21 @@ def resolution_node(state: EntityResolutionState) -> EntityResolutionState:
             
         df = pd.read_parquet(cnes_path)
         
+        # Optimize: Filter CNES records to only those present in clean_sih or clean_sia
+        print("Entity Resolution Agent: Filtering CNES to active facilities in clinical data...")
+        db = DuckDBStorage()
+        try:
+            active_cnes = db.execute("""
+                SELECT cnes FROM clean_sih
+                UNION
+                SELECT cnes FROM clean_sia
+            """)['cnes'].dropna().unique().tolist()
+            df = df[df['cnes'].isin(active_cnes)].copy()
+            print(f"Entity Resolution Agent: Filtered CNES records from {len(active_cnes)} active facilities.")
+        except Exception as ex:
+            print(f"Entity Resolution Agent: Warning - could not filter active CNES: {ex}")
+        db.close()
+        
         if 'fantasia' not in df.columns:
             raise KeyError("Column 'fantasia' not found in CNES data.")
             
@@ -64,12 +79,26 @@ def resolution_node(state: EntityResolutionState) -> EntityResolutionState:
         
         # 3. Create the master unified table master_healthcare in DuckDB
         print("Entity Resolution Agent: Creating master_healthcare table in DuckDB...")
-        join_query = """
+        
+        # Check which clean tables exist in DuckDB
+        tables = db.execute("PRAGMA show_tables")['name'].tolist()
+        sia_selects = []
+        if 'clean_sia' in tables:
+            sia_selects.append("SELECT cnes, proc_rea, val_tot, munic_res, dias_perm, idade, sexo, dt_inter, dt_saida, competen FROM clean_sia")
+        for char in ['a', 'b', 'c', 'd']:
+            tbl = f"clean_sia_{char}"
+            if tbl in tables:
+                sia_selects.append(f"SELECT cnes, proc_rea, val_tot, munic_res, dias_perm, idade, sexo, dt_inter, dt_saida, competen FROM {tbl}")
+                
+        sia_union_query = " UNION ALL ".join(sia_selects)
+        print(f"Entity Resolution Agent: Mapped {len(sia_selects)} clean SIA tables for union.")
+        
+        join_query = f"""
         CREATE OR REPLACE TABLE master_healthcare AS
         WITH clinical_union AS (
             SELECT cnes, proc_rea, val_tot, munic_res, dias_perm, idade, sexo, dt_inter, dt_saida, competen FROM clean_sih
             UNION ALL
-            SELECT cnes, proc_rea, val_tot, munic_res, dias_perm, idade, sexo, dt_inter, dt_saida, competen FROM clean_sia
+            {sia_union_query}
         )
         SELECT 
           s.cnes,

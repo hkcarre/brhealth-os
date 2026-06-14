@@ -133,7 +133,7 @@ if __name__ == "__main__":
     app = build_graph()
     
     initial_state = PipelineState(
-        query="Catarata e faturamento SUS no Acre",
+        query="Catarata e faturamento SUS em São Paulo",
         target_datasets=[],
         raw_paths={},
         clean_paths={},

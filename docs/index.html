@@ -25,7 +25,7 @@
                 </a>
                 <a href="datalake.html" class="nav-item" id="nav-datalake">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                    Datalake (Acre)
+                    Datalake (<span class="state-name-text">Acre</span>)
                 </a>
                 <a href="previsoes.html" class="nav-item" id="nav-forecast">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
@@ -50,7 +50,14 @@
         <main class="main-content" aria-label="Conteúdo Principal">
             <header class="header">
                 <h1>Painel de Inteligência de Saúde</h1>
-                <div class="user-profile">Terminal de Análise</div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <label for="state-selector" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Estado:</label>
+                    <select id="state-selector" class="form-select" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; border-color: var(--accent-primary); background-color: rgba(0,0,0,0.4); color: var(--accent-primary); font-weight: 700;">
+                        <option value="AC" selected>AC (Acre)</option>
+                        <option value="SP">SP (São Paulo)</option>
+                    </select>
+                    <div class="user-profile">Terminal de Análise</div>
+                </div>
             </header>
 
             <div class="dashboard">
@@ -74,7 +81,7 @@
 
                 <!-- Query Section -->
                 <section class="card query-section" aria-label="Consulta de Dados">
-                    <h2>Faça uma Pergunta sobre a Saúde Pública (SUS Acre)</h2>
+                    <h2>Faça uma Pergunta sobre a Saúde Pública (SUS <span class="state-name-text">Acre</span>)</h2>
                     <form id="query-form" class="query-form">
                         <div class="input-group">
                             <input type="text" id="question-input" placeholder="Ex: Qual o faturamento total das cirurgias de catarata?" required autocomplete="off">
@@ -143,6 +150,8 @@
             </div>
         </main>
     </div>
+    <script src="data_ac.js"></script>
+    <script src="data_sp.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

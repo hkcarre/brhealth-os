@@ -27,99 +27,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartCtx = document.getElementById('dashboard-chart').getContext('2d');
     let activeChart = null;
 
-    // PRE-LOADED REAL DUCKDB DATA (Acre, competencia Jan/2024)
-    const dbData = {
-        hospitals: [
-            { "Hospital": "AEROBRAN TAXI AEREO", "CNES": "7619278", "Cidade": "CRUZEIRO DO SUL", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USA RIO BRANCO 01", "CNES": "7132921", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB ACRELANDIA 11", "CNES": "7026641", "Cidade": "ACRELÂNDIA", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB BRASILEIA 19", "CNES": "7030789", "Cidade": "BRASILÉIA", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB DE TARAUACA", "CNES": "7325495", "Cidade": "TARAUACÁ", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB FEIJO", "CNES": "7110561", "Cidade": "FEIJÓ", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB PLACIDO DE CASTRO 12", "CNES": "7241194", "Cidade": "PLÁCIDO DE CASTRO", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB SENA MADUREIRA 21", "CNES": "7241208", "Cidade": "SENA MADUREIRA", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB SENADOR GUIOMARD 15", "CNES": "7241216", "Cidade": "SENADOR GUIOMARD", "UF": "AC" },
-            { "Hospital": "AMBULANCIA USB XAPURI 18", "CNES": "7241224", "Cidade": "XAPURI", "UF": "AC" },
-            { "Hospital": "CAD IMAGEM", "CNES": "6910335", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "CASA DE ACOLHIDA SOUZA ARAUJO", "CNES": "0773093", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "CEDIMP", "CNES": "6861849", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "FUNDHACRE", "CNES": "2001586", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOA HOSPITAL OFTALMOLOGICO DO ACRE LTDA FILIAL", "CNES": "5625645", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOSPITAL DA FAMILIA DR MARCIO ROGERIO CAMARGO", "CNES": "5353947", "Cidade": "JORDÃO", "UF": "AC" },
-            { "Hospital": "HOSPITAL DA MULHER E DA CRIANCA DO JURUA", "CNES": "2000296", "Cidade": "CRUZEIRO DO SUL", "UF": "AC" },
-            { "Hospital": "HOSPITAL DE AMOR RIO BRANCO", "CNES": "9882138", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOSPITAL DE SAUDE MENTAL DO ACRE", "CNES": "2000857", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOSPITAL DR ABEL PINHEIRO MACIEL FILHO", "CNES": "2000083", "Cidade": "MÂNCIO LIMA", "UF": "AC" },
-            { "Hospital": "HOSPITAL DR ARY RODRIGUES", "CNES": "2000725", "Cidade": "SENADOR GUIOMARD", "UF": "AC" },
-            { "Hospital": "HOSPITAL DR MANOEL MARINHO MONTE", "CNES": "2000997", "Cidade": "PLÁCIDO DE CASTRO", "UF": "AC" },
-            { "Hospital": "HOSPITAL DR SANSAO GOMES", "CNES": "2000121", "Cidade": "TARAUACÁ", "UF": "AC" },
-            { "Hospital": "HOSPITAL EPAMINONDAS JACOME", "CNES": "2000393", "Cidade": "XAPURI", "UF": "AC" },
-            { "Hospital": "HOSPITAL GERAL DE CLINICAS DE RIO BRANCO", "CNES": "2001578", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOSPITAL GERAL DE FEIJO", "CNES": "2000636", "Cidade": "FEIJÓ", "UF": "AC" },
-            { "Hospital": "HOSPITAL INFANTIL IOLANDA COSTA E SILVA", "CNES": "2000385", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOSPITAL JOAO CANCIO FERNANDES", "CNES": "2000865", "Cidade": "SENA MADUREIRA", "UF": "AC" },
-            { "Hospital": "HOSPITAL RAIMUNDO CHAAR", "CNES": "2001500", "Cidade": "BRASILÉIA", "UF": "AC" },
-            { "Hospital": "HOSPITAL REGIONAL DO JURUA IRMA NAIR TERESINHA REICHERT", "CNES": "5336171", "Cidade": "CRUZEIRO DO SUL", "UF": "AC" },
-            { "Hospital": "HOSPITAL SANTA JULIANA", "CNES": "2002078", "Cidade": "RIO BRANCO", "UF": "AC" },
-            { "Hospital": "HOSPITAL UROLOGICO DO ACRE", "CNES": "9246010", "Cidade": "RIO BRANCO", "UF": "AC" }
-        ],
-        catarata: [
-            { "Hospital": "HOA HOSPITAL OFTALMOLOGICO DO ACRE LTDA FILIAL", "Volume de Cirurgias": 346, "Faturamento (R$)": 229087.19, "Custo Médio (R$)": 662.10 }
-        ],
-        faturamento: [
-            { "Hospital": "FUNDHACRE", "Faturamento Total (R$)": 3279591.25, "Total de Procedimentos": 8494 },
-            { "Hospital": "HOSPITAL GERAL DE CLINICAS DE RIO BRANCO", "Faturamento Total (R$)": 1477628.69, "Total de Procedimentos": 14832 },
-            { "Hospital": "HOSPITAL SANTA JULIANA", "Faturamento Total (R$)": 1311077.74, "Total de Procedimentos": 1116 },
-            { "Hospital": "CEDIMP", "Faturamento Total (R$)": 1194940.42, "Total de Procedimentos": 11573 },
-            { "Hospital": "HOSPITAL REGIONAL DO JURUA IRMA NAIR TERESINHA REICHERT", "Faturamento Total (R$)": 828256.94, "Total de Procedimentos": 3719 },
-            { "Hospital": "CENTRAL ESTADUAL DE REGULACAO AMBULATORIAL", "Faturamento Total (R$)": 612988.20, "Total de Procedimentos": 1078 },
-            { "Hospital": "CENTRO DE APOIO DIAGNOSTICO ANALISES CLINICAS CAD", "Faturamento Total (R$)": 553234.77, "Total de Procedimentos": 254 },
-            { "Hospital": "HOSPITAL UROLOGICO DO ACRE", "Faturamento Total (R$)": 484371.97, "Total de Procedimentos": 227 },
-            { "Hospital": "UPA 24 HORAS DO 2 DISTRITO", "Faturamento Total (R$)": 461662.11, "Total de Procedimentos": 587 },
-            { "Hospital": "MATERNIDADE E CLINICAS DE MULHERES BARBARA HELIODORA", "Faturamento Total (R$)": 364971.39, "Total de Procedimentos": 1359 },
-            { "Hospital": "UPA DA SOBRAL FRANCO SILVA", "Faturamento Total (R$)": 304663.73, "Total de Procedimentos": 773 },
-            { "Hospital": "HOA HOSPITAL OFTALMOLOGICO DO ACRE LTDA FILIAL", "Faturamento Total (R$)": 275686.38, "Total de Procedimentos": 1440 },
-            { "Hospital": "HOSPITAL RAIMUNDO CHAAR", "Faturamento Total (R$)": 259647.11, "Total de Procedimentos": 810 },
-            { "Hospital": "HOSPITAL DA MULHER E DA CRIANCA DO JURUA", "Faturamento Total (R$)": 241191.74, "Total de Procedimentos": 1321 },
-            { "Hospital": "HOSPITAL JOAO CANCIO FERNANDES", "Faturamento Total (R$)": 165198.57, "Total de Procedimentos": 299 }
-        ],
-        municipios: [
-            { "Município do Paciente": "RIO BRANCO", "UF": "AC", "Pacientes Atendidos": 246 },
-            { "Município do Paciente": "SENADOR GUIOMARD", "UF": "AC", "Pacientes Atendidos": 14 },
-            { "Município do Paciente": "SENA MADUREIRA", "UF": "AC", "Pacientes Atendidos": 11 },
-            { "Município do Paciente": "CRUZEIRO DO SUL", "UF": "AC", "Pacientes Atendidos": 8 },
-            { "Município do Paciente": "ACRELÂNDIA", "UF": "AC", "Pacientes Atendidos": 7 },
-            { "Município do Paciente": "BUJARI", "UF": "AC", "Pacientes Atendidos": 6 },
-            { "Município do Paciente": "BRASILÉIA", "UF": "AC", "Pacientes Atendidos": 5 },
-            { "Município do Paciente": "CAPIXABA", "UF": "AC", "Pacientes Atendidos": 4 },
-            { "Município do Paciente": "PLACIDO DE CASTRO", "UF": "AC", "Pacientes Atendidos": 0 },
-            { "Município do Paciente": "PORTO ACRE", "UF": "AC", "Pacientes Atendidos": 0 },
-            { "Município do Paciente": "RODRIGUES ALVES", "UF": "AC", "Pacientes Atendidos": 0 },
-            { "Município do Paciente": "SANTA ROSA DO PURUS", "UF": "AC", "Pacientes Atendidos": 0 },
-            { "Município do Paciente": "ASSIS BRASIL", "UF": "AC", "Pacientes Atendidos": 0 },
-            { "Município do Paciente": "EPITACIOLÂNDIA", "UF": "AC", "Pacientes Atendidos": 0 },
-            { "Município do Paciente": "JORDÃO", "UF": "AC", "Pacientes Atendidos": 0 }
-        ],
-        permanencia: [
-            { "Hospital": "HOSPITAL INFANTIL IOLANDA COSTA E SILVA", "Média de Permanência (dias)": 8.4, "Total de Altas": 95 },
-            { "Hospital": "HOSPITAL DE SAUDE MENTAL DO ACRE", "Média de Permanência (dias)": 3.2, "Total de Altas": 292 },
-            { "Hospital": "HOSPITAL SANTA JULIANA", "Média de Permanência (dias)": 1.8, "Total de Altas": 1116 },
-            { "Hospital": "HOSPITAL JOAO CANCIO FERNANDES", "Média de Permanência (dias)": 1.3, "Total de Altas": 299 },
-            { "Hospital": "MATERNIDADE E CLINICAS DE MULHERES BARBARA HELIODORA", "Média de Permanência (dias)": 1.1, "Total de Altas": 1359 },
-            { "Hospital": "HOSPITAL RAIMUNDO CHAAR", "Média de Permanência (dias)": 0.9, "Total de Altas": 810 },
-            { "Hospital": "UNIDADE MISTA MARIA DE JESUS ANDER MAZICA", "Média de Permanência (dias)": 0.9, "Total de Altas": 78 },
-            { "Hospital": "HOSPITAL DR SANSAO GOMES", "Média de Permanência (dias)": 0.8, "Total de Altas": 449 },
-            { "Hospital": "HOSPITAL DA MULHER E DA CRIANCA DO JURUA", "Média de Permanência (dias)": 0.7, "Total de Altas": 1321 },
-            { "Hospital": "HOSPITAL REGIONAL DO JURUA IRMA NAIR TERESINHA REICHERT", "Média de Permanência (dias)": 0.7, "Total de Altas": 3719 }
-        ],
-        fallback: [
-            { "Hospital": "HOSPITAL GERAL DE CLINICAS DE RIO BRANCO", "Procedimentos": 14832, "Faturamento (R$)": 1477628.69 },
-            { "Hospital": "CEDIMP", "Procedimentos": 11573, "Faturamento (R$)": 1194940.42 },
-            { "Hospital": "UPA DO VALE DO JURUA JAQUES PEREIRA BRAGA", "Procedimentos": 9383, "Faturamento (R$)": 73880.06 },
-            { "Hospital": "FUNDHACRE", "Procedimentos": 8494, "Faturamento (R$)": 3279591.25 },
-            { "Hospital": "HOA HOSPITAL OFTALMOLOGICO DO ACRE LTDA FILIAL", "Procedimentos": 1440, "Faturamento (R$)": 275686.38 }
-        ]
-    };
+    // Resolve selected state from URL or localStorage or default to AC
+    const urlParams = new URLSearchParams(window.location.search);
+    let selectedState = urlParams.get('state') || localStorage.getItem('selectedState') || 'AC';
+    selectedState = selectedState.toUpperCase();
+    if (selectedState !== 'AC' && selectedState !== 'SP') {
+        selectedState = 'AC';
+    }
+    localStorage.setItem('selectedState', selectedState);
+
+    // Update state dropdown
+    const stateSelector = document.getElementById('state-selector');
+    if (stateSelector) {
+        stateSelector.value = selectedState;
+        stateSelector.addEventListener('change', () => {
+            const newState = stateSelector.value;
+            localStorage.setItem('selectedState', newState);
+            window.location.href = window.location.pathname + '?state=' + newState;
+        });
+    }
+
+    // Update state text elements
+    const stateNameMap = { 'AC': 'Acre', 'SP': 'São Paulo' };
+    const stateName = stateNameMap[selectedState];
+    document.querySelectorAll('.state-name-text').forEach(el => {
+        el.textContent = stateName;
+    });
+
+    // Update sidebar navigation links to carry the state parameter
+    document.querySelectorAll('.sidebar .nav-menu a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href !== '#') {
+            const cleanHref = href.split('?')[0];
+            link.href = cleanHref + '?state=' + selectedState;
+        }
+    });
+
+    // Set the data active for the selected state
+    const dbData = selectedState === 'SP' ? window.dbDataSP : window.dbDataAC;
 
     // Settings Panel Toggle
     navSettings.addEventListener('click', (e) => {
@@ -220,70 +165,127 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetButtonState() {
         submitBtn.disabled = false;
         submitBtn.querySelector('span').textContent = 'Executar';
-        submitBtn.querySelector('svg').style.animation = 'none';
-    }
-
-    // OFFLINE MOCK QUERY ENGINE
+        submitBtn.querySelector('svg').style.animation = 'none';    // OFFLINE MOCK QUERY ENGINE
     function processSimulatedQuery(question) {
         const q = question.toLowerCase().trim();
 
-        // Rule 1: Distinct Hospitals
-        if (q.includes("quantos hospitais") || q.includes("hospitais distintos") || q.includes("lista de hospitais")) {
+        if (selectedState === 'SP') {
+            // Rule 1: Distinct Hospitals (SP)
+            if (q.includes("quantos hospitais") || q.includes("hospitais distintos") || q.includes("lista de hospitais")) {
+                return {
+                    type: 'hospitals',
+                    sql: `SELECT hospital_nome as Hospital, cnes as CNES, hospital_municipio_nome as Cidade, hospital_uf as UF \nFROM master_healthcare \nWHERE hospital_uf = 'SP'\nGROUP BY ALL \nORDER BY hospital_nome`,
+                    narrative: `Foram identificados ${dbData.hospitals.length} estabelecimentos de saúde distintos cadastrados e mapeados no banco de dados do SUS em São Paulo para esta competência.`,
+                    data: dbData.hospitals
+                };
+            }
+
+            // Rule 2: Cataract Surgeries (SP)
+            if (q.includes("volume") || q.includes("cirurgias") || q.includes("catarata") || q.includes("quantidade")) {
+                return {
+                    type: 'catarata',
+                    sql: `SELECT \n  hospital_nome as Hospital, \n  COUNT(*) as "Volume de Cirurgias", \n  ROUND(SUM(valor_total), 2) as "Faturamento (R$)",\n  ROUND(AVG(valor_total), 2) as "Custo Médio (R$)"\nFROM master_healthcare \nWHERE hospital_uf = 'SP' AND procedimento_codigo LIKE '040505%'\nGROUP BY hospital_nome\nORDER BY "Volume de Cirurgias" DESC`,
+                    narrative: `Foram realizadas 14.890 cirurgias de catarata no total. O estabelecimento líder em volume é o AME AMBULATORIO MEDICO DE ESPECIALIDADES DE CAMPINAS, com 1.160 cirurgias (7,8% de market share), seguido de perto pelo HOFTALMED, com 980 cirurgias (6,6%). Isso demonstra uma distribuição mais descentralizada dos serviços em comparação a estados menores.`,
+                    data: dbData.catarata
+                };
+            }
+
+            // Rule 3: Revenue / Costs (SP)
+            if (q.includes("faturamento") || q.includes("receita") || q.includes("valores") || q.includes("quanto custou") || q.includes("custo")) {
+                return {
+                    type: 'faturamento',
+                    sql: `SELECT \n  hospital_nome as Hospital, \n  ROUND(SUM(valor_total), 2) as "Faturamento Total (R$)", \n  COUNT(*) as "Total de Procedimentos"\nFROM master_healthcare \nWHERE hospital_uf = 'SP'\nGROUP BY hospital_nome \nORDER BY "Faturamento Total (R$)" DESC`,
+                    narrative: `O faturamento total em saúde identificado no estado de São Paulo foi de R$ 398.828.754,22. O hospital com maior receita captada foi o HOSPITAL DE BASE DE SAO JOSE DO RIO PRETO, captando R$ 15.910.412,46 (4,0% do faturamento estadual). O segundo colocado é o HC DA FMUSP HOSPITAL DAS CLINICAS SAO PAULO, com R$ 15.249.848,25 (3,8%).`,
+                    data: dbData.faturamento
+                };
+            }
+
+            // Rule 4: Underserved municipalities (SP)
+            if (q.includes("municipio") || q.includes("municípios") || q.includes("cidade") || q.includes("carente") || q.includes("atendimento")) {
+                return {
+                    type: 'municipios',
+                    sql: `SELECT \n  m.nome as "Município do Paciente", \n  m.uf as UF, \n  COALESCE(COUNT(h.cnes), 0) as "Pacientes Atendidos"\nFROM clean_ibge m \nLEFT JOIN master_healthcare h ON m.municipio_id = h.paciente_municipio_id AND h.procedimento_codigo LIKE '040505%' AND h.hospital_uf = 'SP'\nWHERE m.uf = 'SP'\nGROUP BY m.nome, m.uf \nORDER BY "Pacientes Atendidos" DESC \nLIMIT 15`,
+                    narrative: `Análise de cobertura geográfica: identificamos 88 municípios de São Paulo com volume ZERO de pacientes atendidos para cirurgias de catarata para seus residentes nesta competência. Isso aponta para a necessidade de melhorias de acesso regional, mesmo em um estado com alta densidade de serviços.`,
+                    data: dbData.municipios
+                };
+            }
+
+            // Rule 5: Length of Stay (SP)
+            if (q.includes("permanencia") || q.includes("internação") || q.includes("tempo") || q.includes("dias")) {
+                return {
+                    type: 'permanencia',
+                    sql: `SELECT \n  hospital_nome as Hospital, \n  ROUND(AVG(dias_permanencia), 1) as "Média de Permanência (dias)", \n  COUNT(*) as "Total de Altas"\nFROM master_healthcare \nWHERE hospital_uf = 'SP'\nGROUP BY hospital_nome \nORDER BY "Média de Permanência (dias)" DESC`,
+                    narrative: `A média geral de permanência dos pacientes internados em São Paulo é de 4,9 dias. O maior tempo médio de internação foi de 31,0 dias, registrado em instituições especializadas de longa permanência como a CASA TRANSITORIA ANDRE LUIZ e o LAR ESPIRITA MARIA DE NAZARE MOJI MIRIM.`,
+                    data: dbData.permanencia
+                };
+            }
+
+            // Fallback default (SP)
             return {
-                type: 'hospitals',
-                sql: `SELECT hospital_nome as Hospital, cnes as CNES, hospital_municipio_nome as Cidade, hospital_uf as UF \nFROM master_healthcare \nGROUP BY ALL \nORDER BY hospital_nome`,
-                narrative: `Foram identificados ${dbData.hospitals.length} estabelecimentos de saúde distintos cadastrados e mapeados no banco de dados do SUS no Acre para esta competência.`,
-                data: dbData.hospitals
+                type: 'fallback',
+                sql: `SELECT \n  hospital_nome as Hospital, \n  COUNT(*) as "Procedimentos", \n  ROUND(SUM(valor_total), 2) as "Faturamento (R$)" \nFROM master_healthcare \nWHERE hospital_uf = 'SP'\nGROUP BY hospital_nome \nORDER BY "Procedimentos" DESC`,
+                narrative: `Consulta geral do Data Lakehouse executada com sucesso. Foram retornados dados de faturamento e volume agregados por hospital no estado de São Paulo. O Hospital de Base de São José do Rio Preto lidera em faturamento geral com R$ 15.910.412,46.`,
+                data: dbData.fallback
+            };
+        } else {
+            // Rule 1: Distinct Hospitals (AC)
+            if (q.includes("quantos hospitais") || q.includes("hospitais distintos") || q.includes("lista de hospitais")) {
+                return {
+                    type: 'hospitals',
+                    sql: `SELECT hospital_nome as Hospital, cnes as CNES, hospital_municipio_nome as Cidade, hospital_uf as UF \nFROM master_healthcare \nGROUP BY ALL \nORDER BY hospital_nome`,
+                    narrative: `Foram identificados ${dbData.hospitals.length} estabelecimentos de saúde distintos cadastrados e mapeados no banco de dados do SUS no Acre para esta competência.`,
+                    data: dbData.hospitals
+                };
+            }
+
+            // Rule 2: Cataract Surgeries (AC)
+            if (q.includes("volume") || q.includes("cirurgias") || q.includes("catarata") || q.includes("quantidade")) {
+                return {
+                    type: 'catarata',
+                    sql: `SELECT \n  hospital_nome as Hospital, \n  COUNT(*) as "Volume de Cirurgias", \n  ROUND(SUM(valor_total), 2) as "Faturamento (R$)",\n  ROUND(AVG(valor_total), 2) as "Custo Médio (R$)"\nFROM master_healthcare \nWHERE procedimento_codigo LIKE '040505%'\nGROUP BY hospital_nome\nORDER BY "Volume de Cirurgias" DESC`,
+                    narrative: `Foram realizadas 346 cirurgias de catarata no total. O estabelecimento líder absoluto em volume é o HOA HOSPITAL OFTALMOLOGICO DO ACRE LTDA FILIAL, com 346 cirurgias realizadas (100% de market share). Isso demonstra uma centralização total do serviço de oftalmologia cirúrgica de média complexidade pelo SUS na capital Rio Branco.`,
+                    data: dbData.catarata
+                };
+            }
+
+            // Rule 3: Revenue / Costs (AC)
+            if (q.includes("faturamento") || q.includes("receita") || q.includes("valores") || q.includes("quanto custou") || q.includes("custo")) {
+                return {
+                    type: 'faturamento',
+                    sql: `SELECT \n  hospital_nome as Hospital, \n  ROUND(SUM(valor_total), 2) as "Faturamento Total (R$)", \n  COUNT(*) as "Total de Procedimentos"\nFROM master_healthcare \nGROUP BY hospital_nome \nORDER BY "Faturamento Total (R$)" DESC`,
+                    narrative: `O faturamento total em saúde identificado no estado do Acre foi de R$ 9.697.801,65. O hospital com maior receita captada foi a FUNDHACRE (Fundação Hospital Estadual do Acre), captando R$ 3.279.591,25 (33.8% do faturamento estadual). O segundo colocado é o Hospital Geral de Clínicas de Rio Branco, com R$ 1.477.628,69.`,
+                    data: dbData.faturamento
+                };
+            }
+
+            // Rule 4: Underserved municipalities (AC)
+            if (q.includes("municipio") || q.includes("municípios") || q.includes("cidade") || q.includes("carente") || q.includes("atendimento")) {
+                return {
+                    type: 'municipios',
+                    sql: `SELECT \n  m.nome as "Município do Paciente", \n  m.uf as UF, \n  COALESCE(COUNT(h.cnes), 0) as "Pacientes Atendidos"\nFROM clean_ibge m \nLEFT JOIN master_healthcare h ON m.municipio_id = h.paciente_municipio_id AND h.procedimento_codigo LIKE '040505%'\nGROUP BY m.nome, m.uf \nORDER BY "Pacientes Atendidos" ASC \nLIMIT 15`,
+                    narrative: `Análise de cobertura geográfica: identificamos 7 municípios do Acre com volume ZERO de pacientes atendidos para cirurgias de catarata (ex: Plácido de Castro, Porto Acre, Rodrigues Alves, Assis Brasil, Epitaciolândia). Isso aponta para graves problemas de acesso a serviços de oftalmologia cirúrgica nas fronteiras e áreas rurais, exigindo mutirões ou redes de transporte eletivo.`,
+                    data: dbData.municipios
+                };
+            }
+
+            // Rule 5: Length of Stay (AC)
+            if (q.includes("permanencia") || q.includes("internação") || q.includes("tempo") || q.includes("dias")) {
+                return {
+                    type: 'permanencia',
+                    sql: `SELECT \n  hospital_nome as Hospital, \n  ROUND(AVG(dias_permanencia), 1) as "Média de Permanência (dias)", \n  COUNT(*) as "Total de Altas"\nFROM master_healthcare \nGROUP BY hospital_nome \nORDER BY "Média de Permanência (dias)" DESC`,
+                    narrative: `A média geral de permanência dos pacientes internados varia drasticamente. O maior tempo médio de internação foi registrado no Hospital Infantil Iolanda Costa e Silva, com 8.4 dias por paciente, seguido pelo Hospital de Saúde Mental do Acre, com 3.2 dias. Esses valores refletem a complexidade clínica de pediatria e saúde mental, enquanto procedimentos cirúrgicos gerais registram médias inferiores a 1 dia.`,
+                    data: dbData.permanencia
+                };
+            }
+
+            // Fallback default (AC)
+            return {
+                type: 'fallback',
+                sql: `SELECT \n  hospital_nome as Hospital, \n  COUNT(*) as "Procedimentos", \n  ROUND(SUM(valor_total), 2) as "Faturamento (R$)" \nFROM master_healthcare \nGROUP BY hospital_nome \nORDER BY "Procedimentos" DESC`,
+                narrative: `Consulta geral do Data Lakehouse executada com sucesso. Foram retornados dados de faturamento e volume agregados por hospital no estado do Acre. O Hospital Geral de Clínicas lidera em volume de atendimentos gerais com 14.832 procedimentos realizados, embora possua ticket médio inferior ao de hospitais de alta complexidade como a FUNDHACRE.`,
+                data: dbData.fallback
             };
         }
-
-        // Rule 2: Cataract Surgeries
-        if (q.includes("volume") || q.includes("cirurgias") || q.includes("catarata") || q.includes("quantidade")) {
-            return {
-                type: 'catarata',
-                sql: `SELECT \n  hospital_nome as Hospital, \n  COUNT(*) as "Volume de Cirurgias", \n  ROUND(SUM(valor_total), 2) as "Faturamento (R$)",\n  ROUND(AVG(valor_total), 2) as "Custo Médio (R$)"\nFROM master_healthcare \nWHERE procedimento_codigo LIKE '040505%'\nGROUP BY hospital_nome\nORDER BY "Volume de Cirurgias" DESC`,
-                narrative: `Foram realizadas 346 cirurgias de catarata no total. O estabelecimento líder absoluto em volume é o HOA HOSPITAL OFTALMOLOGICO DO ACRE LTDA FILIAL, com 346 cirurgias realizadas (100% de market share). Isso demonstra uma centralização total do serviço de oftalmologia cirúrgica de média complexidade pelo SUS na capital Rio Branco.`,
-                data: dbData.catarata
-            };
-        }
-
-        // Rule 3: Revenue / Costs
-        if (q.includes("faturamento") || q.includes("receita") || q.includes("valores") || q.includes("quanto custou") || q.includes("custo")) {
-            return {
-                type: 'faturamento',
-                sql: `SELECT \n  hospital_nome as Hospital, \n  ROUND(SUM(valor_total), 2) as "Faturamento Total (R$)", \n  COUNT(*) as "Total de Procedimentos"\nFROM master_healthcare \nGROUP BY hospital_nome \nORDER BY "Faturamento Total (R$)" DESC`,
-                narrative: `O faturamento total em saúde identificado no estado do Acre foi de R$ 9.697.801,65. O hospital com maior receita captada foi a FUNDHACRE (Fundação Hospital Estadual do Acre), captando R$ 3.279.591,25 (33.8% do faturamento estadual). O segundo colocado é o Hospital Geral de Clínicas de Rio Branco, com R$ 1.477.628,69.`,
-                data: dbData.faturamento
-            };
-        }
-
-        // Rule 4: Underserved municipalities
-        if (q.includes("municipio") || q.includes("municípios") || q.includes("cidade") || q.includes("carente") || q.includes("atendimento")) {
-            return {
-                type: 'municipios',
-                sql: `SELECT \n  m.nome as "Município do Paciente", \n  m.uf as UF, \n  COALESCE(COUNT(h.cnes), 0) as "Pacientes Atendidos"\nFROM clean_ibge m \nLEFT JOIN master_healthcare h ON m.municipio_id = h.paciente_municipio_id AND h.procedimento_codigo LIKE '040505%'\nGROUP BY m.nome, m.uf \nORDER BY "Pacientes Atendidos" ASC \nLIMIT 15`,
-                narrative: `Análise de cobertura geográfica: identificamos 7 municípios do Acre com volume ZERO de pacientes atendidos para cirurgias de catarata (ex: Plácido de Castro, Porto Acre, Rodrigues Alves, Assis Brasil, Epitaciolândia). Isso aponta para graves problemas de acesso a serviços de oftalmologia cirúrgica nas fronteiras e áreas rurais, exigindo mutirões ou redes de transporte eletivo.`,
-                data: dbData.municipios
-            };
-        }
-
-        // Rule 5: Length of Stay
-        if (q.includes("permanencia") || q.includes("internação") || q.includes("tempo") || q.includes("dias")) {
-            return {
-                type: 'permanencia',
-                sql: `SELECT \n  hospital_nome as Hospital, \n  ROUND(AVG(dias_permanencia), 1) as "Média de Permanência (dias)", \n  COUNT(*) as "Total de Altas"\nFROM master_healthcare \nGROUP BY hospital_nome \nORDER BY "Média de Permanência (dias)" DESC`,
-                narrative: `A média geral de permanência dos pacientes internados varia drasticamente. O maior tempo médio de internação foi registrado no Hospital Infantil Iolanda Costa e Silva, com 8.4 dias por paciente, seguido pelo Hospital de Saúde Mental do Acre, com 3.2 dias. Esses valores refletem a complexidade clínica de pediatria e saúde mental, enquanto procedimentos cirúrgicos gerais registram médias inferiores a 1 dia.`,
-                data: dbData.permanencia
-            };
-        }
-
-        // Fallback default
-        return {
-            type: 'fallback',
-            sql: `SELECT \n  hospital_nome as Hospital, \n  COUNT(*) as "Procedimentos", \n  ROUND(SUM(valor_total), 2) as "Faturamento (R$)" \nFROM master_healthcare \nGROUP BY hospital_nome \nORDER BY "Procedimentos" DESC`,
-            narrative: `Consulta geral do Data Lakehouse executada com sucesso. Foram retornados dados de faturamento e volume agregados por hospital no estado do Acre. O Hospital Geral de Clínicas lidera em volume de atendimentos gerais com 14.832 procedimentos realizados, embora possua ticket médio inferior ao de hospitais de alta complexidade como a FUNDHACRE.`,
-            data: dbData.fallback
-        };
     }
 
     // Dynamic rendering of tables
@@ -363,12 +365,21 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (queryType === 'catarata') {
-            // Show volume distribution (Pie Chart)
-            chartData.labels = data.map(r => r.Hospital || r.hospital_nome || 'Outros');
+            // Show volume distribution (Pie Chart) - optimized to show top 5 and group other as "Outros"
+            const subset = data.slice(0, 5);
+            chartData.labels = subset.map(r => r.Hospital || r.hospital_nome || 'Outros');
+            if (data.length > 5) {
+                chartData.labels.push('Outros');
+            }
+            const volumes = subset.map(r => r['Volume de Cirurgias'] || r.procedure_volume || 0);
+            if (data.length > 5) {
+                const othersVol = data.slice(5).reduce((acc, curr) => acc + (curr['Volume de Cirurgias'] || curr.procedure_volume || 0), 0);
+                volumes.push(othersVol);
+            }
             chartData.datasets = [{
                 label: 'Volume de Cirurgias',
-                data: data.map(r => r['Volume de Cirurgias'] || r.procedure_volume || 0),
-                backgroundColor: ['#ff9f0a', '#00d2ff', '#30d158', '#ff453a'],
+                data: volumes,
+                backgroundColor: ['#ff9f0a', '#00d2ff', '#30d158', '#ff453a', '#bf5af2', '#aeaeae'],
                 borderWidth: 0
             }];
             activeChart = new Chart(chartCtx, {
